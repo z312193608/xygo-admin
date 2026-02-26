@@ -1,0 +1,113 @@
+# 系统配置
+system:
+  debug: true                     # debug 开关：true=接口报错输出堆栈（开发用），false=隐藏堆栈（生产必须关）
+  mode:  "develop"                # 运行模式：develop / testing / staging / product（product 模式自动隐藏开发工具）
+
+# https://goframe.org/docs/web/server-config-file-template
+server:
+  address:           ":4096"
+  openapiPath:       "/api.json"
+  swaggerPath:       "/swagger"
+  timezone:          "Asia/Shanghai"
+  errorStack:        true                     # 异常时记录堆栈到日志（排错必备）
+  errorLogEnabled:   true                     # 异常日志开关
+  errorLogPattern:   "error/{Y-m-d}.log"      # 异常日志独立文件
+  accessLogEnabled:  false                    # 访问日志（高流量时建议关闭，安全审计时开启）
+  accessLogPattern:  "access/{Y-m-d}.log"
+  clientMaxBodySize: "200MB"                  # 请求体大小限制（影响文件上传）
+
+# 安全配置
+security:
+  # CORS 跨域白名单（生产环境务必配置为实际域名）
+  # 为空或不配置时允许所有来源（开发模式）
+  # 示例: ["https://admin.example.com", "https://www.example.com"]
+  corsOrigins: []
+
+  # 登录防暴力破解
+  loginProtect:
+    enabled: true              # 是否启用
+    maxRetries: 5              # 最大连续失败次数
+    lockMinutes: 15            # 锁定时长（分钟）
+
+# https://goframe.org/docs/core/glog-config
+logger:
+  path:                 "logs/main"    # 日志文件目录
+  level:                "all"          # 日志级别：all / debug / info / warn / error
+  stdout:               true           # 是否同时输出到终端
+  file:                 "{Y-m-d}.log"  # 日志文件名格式
+  rotateExpire:         "7d"           # 日志保留天数
+  rotateBackupLimit:    7              # 最大备份文件数
+  rotateBackupCompress: 2              # 压缩级别 0-9
+
+# 数据库慢查询日志（独立文件）
+databaseLogger:
+  path:   "logs/db"
+  level:  "all"
+  stdout: false
+  file:   "{Y-m-d}.log"
+  rotateExpire: "7d"
+
+# 认证配置（JWT + 登录策略）
+auth:
+  jwt:
+    secret:  "your-jwt-secret-change-me"   # JWT 签名密钥（生产环境请改成32位以上随机字符串）
+    expires: 7200                           # Token 有效期（秒），例如 2 小时
+    multiLogin: false                       # 是否允许多端登录
+
+# 缓存配置（Token 存储）
+cache:
+  adapter: "redis"               # 缓存适配器：memory=内存, redis=Redis（生产推荐）
+
+# Redis 配置
+redis:
+  default:
+    address: "127.0.0.1:6379"
+    db:      0
+
+# 文件存储配置（驱动和云存储参数在系统设置-对象存储中配置）
+storage:
+  local:
+    basePath: "resource/public/attachment/upload"     # 本地存储根目录
+    urlPrefix: "/attachment/upload"                   # URL 前缀
+
+# https://goframe.org/docs/core/gdb-config-file
+database:
+  default:
+    link:   "mysql:root:your-password@tcp(127.0.0.1:3306)/xygo?loc=Local&parseTime=true"
+  # link:   "pgsql:postgres:your-password@tcp(127.0.0.1:5432)/xygo"
+    Prefix: "xy_"
+    debug:  true
+
+# 性能与可观测性
+performance:
+  # 慢查询监控
+  slowQuery:
+    enabled: true            # 是否启用慢查询告警
+    threshold: 200           # 慢查询阈值（毫秒），超过此值记录 WARNING 日志
+  # 慢接口监控
+  slowApi:
+    enabled: true            # 是否启用慢接口告警
+    threshold: 1000          # 慢接口阈值（毫秒）
+
+# 消息队列配置
+queue:
+  driver: "redis"                # 驱动：redis（生产推荐）或 disk（无Redis时兜底）
+  diskPath: "storage/queue"      # disk 驱动的本地存储路径
+
+# 代码生成器配置
+xygen:
+  allowedIPs: ["127.0.0.1", "*"]                                       # 允许使用代码生成的IP白名单，*代表所有
+  selectDbs: ["default"]                                                # 可选生成表的数据库配置名
+  disableTables: ["xy_sys_gen_codes", "xy_sys_gen_codes_column"]       # 禁用的表（不会出现在选择列表中）
+  application:
+    crud:
+      templates:
+        - group: "default"                                              # 模板分组
+          templatePath: "./resource/generate/default"                   # 模板路径
+          apiPath: "api/admin"                                          # Go API 生成路径
+          controllerPath: "internal/controller/admin"                   # 控制器生成路径
+          logicPath: "internal/logic"                                   # 业务逻辑生成路径
+          inputPath: "internal/model/input/adminin"                     # 表单模型生成路径
+          sqlPath: "resource/sql/generate"                              # SQL 文件生成路径
+          webApiPath: "../web/src/api/backend"                          # 前端 API 生成路径
+          webViewsPath: "../web/src/views/backend"                      # 前端页面生成路径

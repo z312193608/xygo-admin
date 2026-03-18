@@ -6,8 +6,8 @@ package entity
 
 // AdminLoginLog is the golang structure for table admin_login_log.
 type AdminLoginLog struct {
-	Id        uint64 `json:"id"        orm:"id"         description:"日志ID"`          // 日志ID
-	UserId    uint64 `json:"userId"    orm:"user_id"    description:"管理员ID（0=未知用户）"` // 管理员ID（0=未知用户）
+	Id        uint   `json:"id"        orm:"id"         description:"日志ID"`          // 日志ID
+	UserId    uint   `json:"userId"    orm:"user_id"    description:"管理员ID（0=未知用户）"` // 管理员ID（0=未知用户）
 	Username  string `json:"username"  orm:"username"   description:"登录账号"`          // 登录账号
 	Ip        string `json:"ip"        orm:"ip"         description:"登录IP"`          // 登录IP
 	Location  string `json:"location"  orm:"location"   description:"登录地点"`          // 登录地点

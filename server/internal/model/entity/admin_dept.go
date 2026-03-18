@@ -13,6 +13,6 @@ type AdminDept struct {
 	Status     int    `json:"status"     orm:"status"      description:"状态:0禁用,1启用"` // 状态:0禁用,1启用
 	Remark     string `json:"remark"     orm:"remark"      description:"备注"`         // 备注
 	CreateBy   uint64 `json:"createBy"   orm:"create_by"   description:"创建人"`        // 创建人
-	CreateTime uint64 `json:"createTime" orm:"create_time" description:"创建时间"`       // 创建时间
-	UpdateTime uint64 `json:"updateTime" orm:"update_time" description:"更新时间"`       // 更新时间
+	CreateTime uint   `json:"createTime" orm:"create_time" description:"创建时间"`       // 创建时间
+	UpdateTime uint   `json:"updateTime" orm:"update_time" description:"更新时间"`       // 更新时间
 }

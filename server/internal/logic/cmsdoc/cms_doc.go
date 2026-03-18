@@ -200,7 +200,7 @@ func (s *sCmsDoc) List(ctx context.Context, in *adminin.DocListInp) (*adminin.Do
 			Cover:        it.Cover,
 			Summary:      it.Summary,
 			Author:       it.Author,
-			Views:        it.Views,
+			Views:        int(it.Views),
 			Sort:         it.Sort,
 			Status:       it.Status,
 			IsTop:        it.IsTop,
@@ -285,7 +285,7 @@ func (s *sCmsDoc) Search(ctx context.Context, keyword string) ([]adminin.DocSear
 			Slug:         it.Slug,
 			Summary:      it.Summary,
 			Author:       it.Author,
-			Views:        it.Views,
+			Views:        int(it.Views),
 			MatchType:    matchType,
 		})
 	}
@@ -384,7 +384,7 @@ func (s *sCmsDoc) entityToDetail(ctx context.Context, doc *entity.CmsDoc) *admin
 		Summary:      doc.Summary,
 		Content:      doc.Content,
 		Author:       doc.Author,
-		Views:        doc.Views,
+		Views:        int(doc.Views),
 		Sort:         doc.Sort,
 		Status:       doc.Status,
 		IsTop:        doc.IsTop,

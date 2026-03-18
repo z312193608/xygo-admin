@@ -16,7 +16,7 @@ type AdminNotice struct {
 	Status     int    `json:"status"     orm:"status"      description:"状态:1=正常,2=关闭"`                    // 状态:1=正常,2=关闭
 	Sort       int    `json:"sort"       orm:"sort"        description:"排序"`                              // 排序
 	Remark     string `json:"remark"     orm:"remark"      description:"备注"`                              // 备注
-	ReadCount  int    `json:"readCount"  orm:"read_count"  description:"已读人数"`                            // 已读人数
+	ReadCount  uint   `json:"readCount"  orm:"read_count"  description:"已读人数"`                            // 已读人数
 	CreatedAt  uint64 `json:"createdAt"  orm:"created_at"  description:"创建时间"`                            // 创建时间
 	UpdatedAt  uint64 `json:"updatedAt"  orm:"updated_at"  description:"更新时间"`                            // 更新时间
 }

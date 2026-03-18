@@ -14,6 +14,6 @@ type AdminPost struct {
 	Remark     string `json:"remark"     orm:"remark"      description:"备注"`           // 备注
 	CreatedBy  uint64 `json:"createdBy"  orm:"created_by"  description:"创建人ID"`        // 创建人ID
 	UpdatedBy  uint64 `json:"updatedBy"  orm:"updated_by"  description:"更新人ID"`        // 更新人ID
-	CreateTime uint64 `json:"createTime" orm:"create_time" description:"创建时间"`         // 创建时间
-	UpdateTime uint64 `json:"updateTime" orm:"update_time" description:"更新时间"`         // 更新时间
+	CreateTime uint   `json:"createTime" orm:"create_time" description:"创建时间"`         // 创建时间
+	UpdateTime uint   `json:"updateTime" orm:"update_time" description:"更新时间"`         // 更新时间
 }

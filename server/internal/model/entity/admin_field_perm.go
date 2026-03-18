@@ -15,6 +15,6 @@ type AdminFieldPerm struct {
 	PermType   int    `json:"permType"   orm:"perm_type"   description:"权限类型：0=不可见，1=只读，2=可编辑"`                // 权限类型：0=不可见，1=只读，2=可编辑
 	Status     int    `json:"status"     orm:"status"      description:"状态：0=禁用，1=启用"`                         // 状态：0=禁用，1=启用
 	Remark     string `json:"remark"     orm:"remark"      description:"备注"`                                   // 备注
-	CreateTime uint64 `json:"createTime" orm:"create_time" description:"创建时间"`                                 // 创建时间
-	UpdateTime uint64 `json:"updateTime" orm:"update_time" description:"更新时间"`                                 // 更新时间
+	CreateTime uint   `json:"createTime" orm:"create_time" description:"创建时间"`                                 // 创建时间
+	UpdateTime uint   `json:"updateTime" orm:"update_time" description:"更新时间"`                                 // 更新时间
 }

@@ -21,12 +21,12 @@ type Member struct {
 	Birthday    *gtime.Time `json:"birthday"    orm:"birthday"      description:"生日"`              // 生日
 	Money       float64     `json:"money"       orm:"money"         description:"余额"`              // 余额
 	Score       int         `json:"score"       orm:"score"         description:"积分"`              // 积分
-	Level       int         `json:"level"       orm:"level"         description:"会员等级"`            // 会员等级
+	Level       uint        `json:"level"       orm:"level"         description:"会员等级"`            // 会员等级
 	GroupId     uint64      `json:"groupId"     orm:"group_id"      description:"会员分组ID"`          // 会员分组ID
 	Status      int         `json:"status"      orm:"status"        description:"状态：0=禁用 1=正常"`    // 状态：0=禁用 1=正常
 	LastLoginIp string      `json:"lastLoginIp" orm:"last_login_ip" description:"最后登录IP"`          // 最后登录IP
 	LastLoginAt uint64      `json:"lastLoginAt" orm:"last_login_at" description:"last login time"` // last login time
-	LoginCount  int         `json:"loginCount"  orm:"login_count"   description:"登录次数"`            // 登录次数
+	LoginCount  uint        `json:"loginCount"  orm:"login_count"   description:"登录次数"`            // 登录次数
 	CreatedAt   uint64      `json:"createdAt"   orm:"created_at"    description:"创建时间"`            // 创建时间
 	UpdatedAt   uint64      `json:"updatedAt"   orm:"updated_at"    description:"更新时间"`            // 更新时间
 	DeletedAt   uint64      `json:"deletedAt"   orm:"deleted_at"    description:"deleted time"`    // deleted time

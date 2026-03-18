@@ -15,5 +15,5 @@ type SysCronLog struct {
 	Output    string `json:"output"    orm:"output"     description:"执行输出"`       // 执行输出
 	ErrMsg    string `json:"errMsg"    orm:"err_msg"    description:"错误信息"`       // 错误信息
 	TakeMs    int    `json:"takeMs"    orm:"take_ms"    description:"耗时(毫秒)"`     // 耗时(毫秒)
-	CreatedAt uint64 `json:"createdAt" orm:"created_at" description:"执行时间"`       // 执行时间
+	CreatedAt uint   `json:"createdAt" orm:"created_at" description:"执行时间"`       // 执行时间
 }

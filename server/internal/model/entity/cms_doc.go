@@ -14,7 +14,7 @@ type CmsDoc struct {
 	Summary    string `json:"summary"    orm:"summary"     description:"摘要"`                 // 摘要
 	Content    string `json:"content"    orm:"content"     description:"文档内容(Markdown)"`     // 文档内容(Markdown)
 	Author     string `json:"author"     orm:"author"      description:"作者"`                 // 作者
-	Views      int    `json:"views"      orm:"views"       description:"浏览量"`                // 浏览量
+	Views      uint   `json:"views"      orm:"views"       description:"浏览量"`                // 浏览量
 	Sort       int    `json:"sort"       orm:"sort"        description:"排序(越大越靠前)"`          // 排序(越大越靠前)
 	Status     int    `json:"status"     orm:"status"      description:"状态:1=已发布,2=草稿,3=下架"` // 状态:1=已发布,2=草稿,3=下架
 	IsTop      int    `json:"isTop"      orm:"is_top"      description:"是否置顶:0=否,1=是"`       // 是否置顶:0=否,1=是

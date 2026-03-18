@@ -61,6 +61,7 @@ var (
 			// 静态文件服务：前端 dist + 上传文件
 			s.SetServerRoot("resource/public/dist")
 			s.AddStaticPath("/attachment", "resource/public/attachment")
+			s.AddStaticPath("/m", "resource/public/mobile")
 			s.SetIndexFolder(false)
 
 			// SPA 回退：404 时返回 index.html 让前端路由接管

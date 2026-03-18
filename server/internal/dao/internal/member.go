@@ -38,6 +38,10 @@ type MemberColumns struct {
 	LastLoginIp string // 最后登录IP
 	LastLoginAt string // last login time
 	LoginCount  string // 登录次数
+	OpenidMapp  string // 微信小程序openid
+	OpenidOa    string // 微信公众号openid
+	SessionKey  string // 小程序session_key
+	WxAvatar    string // 微信头像
 	CreatedAt   string // 创建时间
 	UpdatedAt   string // 更新时间
 	DeletedAt   string // deleted time
@@ -62,6 +66,10 @@ var memberColumns = MemberColumns{
 	LastLoginIp: "last_login_ip",
 	LastLoginAt: "last_login_at",
 	LoginCount:  "login_count",
+	OpenidMapp:  "openid_mapp",
+	OpenidOa:    "openid_oa",
+	SessionKey:  "session_key",
+	WxAvatar:    "wx_avatar",
 	CreatedAt:   "created_at",
 	UpdatedAt:   "updated_at",
 	DeletedAt:   "deleted_at",

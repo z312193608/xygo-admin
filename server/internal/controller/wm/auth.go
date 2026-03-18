@@ -36,6 +36,35 @@ func (c *ControllerV1) WxLogin(ctx context.Context, req *wmApi.WxLoginReq) (res 
 	}, nil
 }
 
+// OaAuthUrl 获取公众号授权跳转URL
+func (c *ControllerV1) OaAuthUrl(ctx context.Context, req *wmApi.OaAuthUrlReq) (res *wmApi.OaAuthUrlRes, err error) {
+	output, err := service.WmAuth().OaAuthUrl(ctx, &wmin.OaAuthUrlInput{
+		Redirect: req.Redirect,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &wmApi.OaAuthUrlRes{
+		Url: output.Url,
+	}, nil
+}
+
+// OaCallback 公众号授权回调
+func (c *ControllerV1) OaCallback(ctx context.Context, req *wmApi.OaCallbackReq) (res *wmApi.OaCallbackRes, err error) {
+	output, err := service.WmAuth().OaCallback(ctx, &wmin.OaCallbackInput{
+		Code:  req.Code,
+		State: req.State,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &wmApi.OaCallbackRes{
+		OaCallbackOutput: output,
+	}, nil
+}
+
 // Profile 获取当前登录用户信息
 func (c *ControllerV1) Profile(ctx context.Context, req *wmApi.ProfileReq) (res *wmApi.ProfileRes, err error) {
 	member := contexts.GetMember(ctx)

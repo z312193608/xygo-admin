@@ -76,7 +76,7 @@ func (s *sWmAuth) WxLogin(ctx context.Context, in *wmin.WxLoginInput) (out *wmin
 
 	// ---- 3. 查询或自动注册会员 ----
 	var member *entity.Member
-	err = dao.Member.Ctx(ctx).Where("openid", openid).Scan(&member)
+	err = dao.Member.Ctx(ctx).Where("openid_mapp", openid).Scan(&member)
 	if err != nil {
 		return nil, err
 	}
@@ -93,12 +93,12 @@ func (s *sWmAuth) WxLogin(ctx context.Context, in *wmin.WxLoginInput) (out *wmin
 			shortId = shortId[len(shortId)-16:]
 		}
 		result, insertErr := dao.Member.Ctx(ctx).Data(g.Map{
-			"username":    "wx_" + shortId,
-			"password":    string(dummyPwd),
-			"nickname":    "微信用户",
-			"mobile":      "wx_" + shortId,
-			"openid":      openid,
-			"session_key": sessionKey,
+			"username":     "wx_" + shortId,
+			"password":     string(dummyPwd),
+			"nickname":     "微信用户",
+			"mobile":       "wx_" + shortId,
+			"openid_mapp":  openid,
+			"session_key":  sessionKey,
 			"status":      1,
 			"group_id":    1,
 			"level":       1,

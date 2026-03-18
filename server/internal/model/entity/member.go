@@ -27,6 +27,10 @@ type Member struct {
 	LastLoginIp string      `json:"lastLoginIp" orm:"last_login_ip" description:"最后登录IP"`          // 最后登录IP
 	LastLoginAt uint64      `json:"lastLoginAt" orm:"last_login_at" description:"last login time"` // last login time
 	LoginCount  int         `json:"loginCount"  orm:"login_count"   description:"登录次数"`            // 登录次数
+	OpenidMapp  string      `json:"openidMapp"  orm:"openid_mapp"   description:"微信小程序openid"`      // 微信小程序openid
+	OpenidOa    string      `json:"openidOa"    orm:"openid_oa"     description:"微信公众号openid"`      // 微信公众号openid
+	SessionKey  string      `json:"sessionKey"  orm:"session_key"   description:"小程序session_key"`   // 小程序session_key
+	WxAvatar    string      `json:"wxAvatar"    orm:"wx_avatar"     description:"微信头像"`             // 微信头像
 	CreatedAt   uint64      `json:"createdAt"   orm:"created_at"    description:"创建时间"`            // 创建时间
 	UpdatedAt   uint64      `json:"updatedAt"   orm:"updated_at"    description:"更新时间"`            // 更新时间
 	DeletedAt   uint64      `json:"deletedAt"   orm:"deleted_at"    description:"deleted time"`    // deleted time

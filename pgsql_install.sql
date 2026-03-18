@@ -2277,6 +2277,10 @@ CREATE TABLE public.xy_member (
     login_count integer DEFAULT 0 NOT NULL,
     created_at bigint,
     updated_at bigint,
+    openid_mapp character varying(64) DEFAULT ''::character varying NOT NULL,
+    openid_oa character varying(64) DEFAULT ''::character varying NOT NULL,
+    session_key character varying(128) DEFAULT ''::character varying NOT NULL,
+    wx_avatar character varying(500) DEFAULT ''::character varying NOT NULL,
     deleted_at bigint DEFAULT 0 NOT NULL
 );
 
@@ -2419,6 +2423,34 @@ COMMENT ON COLUMN public.xy_member.created_at IS '创建时间';
 --
 
 COMMENT ON COLUMN public.xy_member.updated_at IS '更新时间';
+
+
+--
+-- Name: COLUMN xy_member.deleted_at; Type: COMMENT; Schema: xygonew; Owner: -
+--
+
+COMMENT ON COLUMN public.xy_member.openid_mapp IS '微信小程序openid';
+
+
+--
+-- Name: COLUMN xy_member.openid_oa; Type: COMMENT; Schema: xygonew; Owner: -
+--
+
+COMMENT ON COLUMN public.xy_member.openid_oa IS '微信公众号openid';
+
+
+--
+-- Name: COLUMN xy_member.session_key; Type: COMMENT; Schema: xygonew; Owner: -
+--
+
+COMMENT ON COLUMN public.xy_member.session_key IS '小程序session_key';
+
+
+--
+-- Name: COLUMN xy_member.wx_avatar; Type: COMMENT; Schema: xygonew; Owner: -
+--
+
+COMMENT ON COLUMN public.xy_member.wx_avatar IS '微信头像';
 
 
 --
@@ -5334,7 +5366,7 @@ INSERT INTO public.xy_sys_config (id, "group", group_name, name, key, value, typ
 INSERT INTO public.xy_sys_config (id, "group", group_name, name, key, value, type, options, rules, sort, remark, allow_del, created_by, updated_by, create_time, update_time) VALUES (25, 'security', '安全设置', '登录防护策略（多选）', 'login_protect_multi', '["ip_limit","captcha","multi_login_limit"]', 'selects', '{"options": [{"label": "限制 IP 白名单", "value": "ip_limit"}, {"label": "启用验证码", "value": "captcha"}, {"label": "限制同账号多地登录", "value": "multi_login_limit"}], "multiple": true}', NULL, 130, '多选下拉示例', 0, 0, 0, 0, 0);
 INSERT INTO public.xy_sys_config (id, "group", group_name, name, key, value, type, options, rules, sort, remark, allow_del, created_by, updated_by, create_time, update_time) VALUES (26, 'basics', '基础设置', '站点富文本', 'site_richtext', '<p>测试服务这回可以了吧真的好厉害</p>', 'editor', '{"mode": "default", "height": "360px", "placeholder": "请输入站点介绍...", "toolbarKeys": ["headerSelect", "bold", "underline", "italic", "through", "color", "bgColor", "link", "bulletedList", "numberedList", "todo", "justifyLeft", "justifyCenter", "justifyRight", "insertTable", "uploadImage", "codeBlock", "undo", "redo"], "uploadConfig": {"maxFileSize": 3145728, "maxNumberOfFiles": 5}}', NULL, 100, '富文本示例，使用 ArtWangEditor', 0, NULL, NULL, 0, 1770737799);
 INSERT INTO public.xy_sys_config (id, "group", group_name, name, key, value, type, options, rules, sort, remark, allow_del, created_by, updated_by, create_time, update_time) VALUES (27, 'basics', '基础设置', '站点富文本', 'site_textedio', '<p>啊啊啊啊</p>', 'editor', '{"mode": "default", "height": "360px", "placeholder": "请输入站点介绍...", "toolbarKeys": ["headerSelect", "bold", "underline", "italic", "through", "color", "bgColor", "link", "bulletedList", "numberedList", "todo", "justifyLeft", "justifyCenter", "justifyRight", "insertTable", "uploadImage", "codeBlock", "undo", "redo"], "uploadConfig": {"maxFileSize": 3145728, "maxNumberOfFiles": 5}}', NULL, 100, '富文本示例，使用 ArtWangEditor', 0, NULL, NULL, 0, 1770737799);
-INSERT INTO public.xy_sys_config (id, "group", group_name, name, key, value, type, options, rules, sort, remark, allow_del, created_by, updated_by, create_time, update_time) VALUES (28, 'dictionary', '字典配置', '配置分组字典', 'config_group', '[{"group":"basics","groupName":"基础设置","icon":"ri:settings-3-line","description":"系统常规信息配置","sort":0},{"group":"oss","groupName":"对象存储","icon":"ri:cloud-line","description":"对象存储配置","sort":10},{"group":"mail","groupName":"邮件配置","icon":"ri:mail-line","description":"邮箱账号信息配置","sort":20},{"group":"security","groupName":"安全设置","icon":"ri:shield-line","description":"安全相关配置","sort":30},{"group":"sms","groupName":"短信配置","icon":"ri:smartphone-line","description":"配置短信接口","sort":40},{"group":"we_mapp","groupName":"小程序配置","icon":"ri:wechat-fill","description":"微信小程序配置","sort":50}]', 'array', '{"fields": [{"key": "group", "type": "text", "label": "分组标识", "placeholder": "如 basics/mail/oss"}, {"key": "groupName", "type": "text", "label": "分组名称", "placeholder": "显示名称"}, {"key": "icon", "type": "text", "label": "图标", "placeholder": "如 ri:settings-3-line"}, {"key": "description", "type": "text", "label": "描述", "placeholder": "分组描述信息"}, {"key": "sort", "min": 0, "type": "number", "label": "排序", "placeholder": "越大越靠后"}]}', NULL, 10, '配置分组字典（key=group，value=显示名）', 0, NULL, NULL, 0, 1770736665);
+INSERT INTO public.xy_sys_config (id, "group", group_name, name, key, value, type, options, rules, sort, remark, allow_del, created_by, updated_by, create_time, update_time) VALUES (28, 'dictionary', '字典配置', '配置分组字典', 'config_group', '[{"group":"basics","groupName":"基础设置","icon":"ri:settings-3-line","description":"系统常规信息配置","sort":0},{"group":"oss","groupName":"对象存储","icon":"ri:cloud-line","description":"对象存储配置","sort":10},{"group":"mail","groupName":"邮件配置","icon":"ri:mail-line","description":"邮箱账号信息配置","sort":20},{"group":"security","groupName":"安全设置","icon":"ri:shield-line","description":"安全相关配置","sort":30},{"group":"sms","groupName":"短信配置","icon":"ri:smartphone-line","description":"配置短信接口","sort":40},{"group":"we_mapp","groupName":"小程序配置","icon":"ri:wechat-fill","description":"微信小程序配置","sort":50},{"group":"we_oa","groupName":"公众号配置","icon":"ri:wechat-line","description":"微信公众号配置","sort":60}]', 'array', '{"fields": [{"key": "group", "type": "text", "label": "分组标识", "placeholder": "如 basics/mail/oss"}, {"key": "groupName", "type": "text", "label": "分组名称", "placeholder": "显示名称"}, {"key": "icon", "type": "text", "label": "图标", "placeholder": "如 ri:settings-3-line"}, {"key": "description", "type": "text", "label": "描述", "placeholder": "分组描述信息"}, {"key": "sort", "min": 0, "type": "number", "label": "排序", "placeholder": "越大越靠后"}]}', NULL, 10, '配置分组字典（key=group，value=显示名）', 0, NULL, NULL, 0, 1770736665);
 INSERT INTO public.xy_sys_config (id, "group", group_name, name, key, value, type, options, rules, sort, remark, allow_del, created_by, updated_by, create_time, update_time) VALUES (34, 'oss', '对象存储', '阿里云 endpoint', 'oss_aliyun_endpoint', '', 'text', NULL, NULL, 110, '如 oss-cn-hangzhou.aliyuncs.com', 0, NULL, NULL, 0, 0);
 INSERT INTO public.xy_sys_config (id, "group", group_name, name, key, value, type, options, rules, sort, remark, allow_del, created_by, updated_by, create_time, update_time) VALUES (35, 'oss', '对象存储', '阿里云 AccessKeyId', 'oss_aliyun_access_key_id', '', 'text', NULL, NULL, 111, '', 0, NULL, NULL, 0, 0);
 INSERT INTO public.xy_sys_config (id, "group", group_name, name, key, value, type, options, rules, sort, remark, allow_del, created_by, updated_by, create_time, update_time) VALUES (36, 'oss', '对象存储', '阿里云 AccessKeySecret', 'oss_aliyun_access_key_secret', '', 'text', NULL, NULL, 112, '', 0, NULL, NULL, 0, 0);
@@ -5361,6 +5393,9 @@ INSERT INTO public.xy_sys_config (id, "group", group_name, name, key, value, typ
 INSERT INTO public.xy_sys_config (id, "group", group_name, name, key, value, type, options, rules, sort, remark, allow_del, created_by, updated_by, create_time, update_time) VALUES (57, 'basics', '基础设置', '前台会员中心', 'open_member_center', '1', 'switch', '{"activeText": "", "activeValue": "1", "inactiveText": "", "inactiveValue": "0"}', NULL, 100, '如关闭则无法登录注册前台会员中心', 0, NULL, NULL, 1770736767, 1770737799);
 INSERT INTO public.xy_sys_config (id, "group", group_name, name, key, value, type, options, rules, sort, remark, allow_del, created_by, updated_by, create_time, update_time) VALUES (58, 'we_mapp', '小程序配置', '微信小程序appid', 'wmapp_appid', '', 'text', '{"pattern": "", "maxLength": 50, "minLength": 0, "placeholder": "请输入"}', NULL, 100, '微信小程序appid', 0, NULL, NULL, 1773624392, 1773624392);
 INSERT INTO public.xy_sys_config (id, "group", group_name, name, key, value, type, options, rules, sort, remark, allow_del, created_by, updated_by, create_time, update_time) VALUES (59, 'we_mapp', '小程序配置', '微信小程序appsecret', 'wmapp_secret', '', 'text', '{"pattern": "", "maxLength": 50, "minLength": 0, "placeholder": "请输入"}', NULL, 100, '', 0, NULL, NULL, 1773624417, 1773624417);
+INSERT INTO public.xy_sys_config (id, "group", group_name, name, key, value, type, options, rules, sort, remark, allow_del, created_by, updated_by, create_time, update_time) VALUES (60, 'we_oa', '公众号配置', '公众号AppID', 'weoa_appid', '', 'text', '{"pattern": "", "maxLength": 50, "minLength": 0, "placeholder": "请输入公众号AppID"}', NULL, 100, '微信公众号AppID', 0, NULL, NULL, 1773624417, 1773624417);
+INSERT INTO public.xy_sys_config (id, "group", group_name, name, key, value, type, options, rules, sort, remark, allow_del, created_by, updated_by, create_time, update_time) VALUES (61, 'we_oa', '公众号配置', '公众号AppSecret', 'weoa_secret', '', 'text', '{"pattern": "", "maxLength": 50, "minLength": 0, "placeholder": "请输入公众号AppSecret"}', NULL, 110, '微信公众号AppSecret', 0, NULL, NULL, 1773624417, 1773624417);
+INSERT INTO public.xy_sys_config (id, "group", group_name, name, key, value, type, options, rules, sort, remark, allow_del, created_by, updated_by, create_time, update_time) VALUES (62, 'we_oa', '公众号配置', '公众号Token', 'weoa_token', '', 'text', '{"pattern": "", "maxLength": 100, "minLength": 0, "placeholder": "请输入公众号服务器Token"}', NULL, 120, '公众号服务器配置Token（用于消息验证）', 0, NULL, NULL, 1773624417, 1773624417);
 
 
 --

@@ -20,12 +20,13 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gtime"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/gogf/gf/v2/util/grand"
 
 	"xygo/internal/consts"
 	"xygo/internal/dao"
@@ -91,14 +92,15 @@ func (s *sWmAuth) WxLogin(ctx context.Context, in *wmin.WxLoginInput) (out *wmin
 		// 自动注册：先创建会员，再创建 oauth 绑定记录
 		isNew = true
 		now := gtime.Now().Unix()
-		dummyPwd, _ := bcrypt.GenerateFromPassword([]byte("wx_"+openid), bcrypt.DefaultCost)
+		salt := grand.S(6)
 		shortId := openid
 		if len(shortId) > 16 {
 			shortId = shortId[len(shortId)-16:]
 		}
 		result, insertErr := dao.Member.Ctx(ctx).Data(g.Map{
 			"username":   "wx_" + shortId,
-			"password":   string(dummyPwd),
+			"password":   gmd5.MustEncryptString("wx_" + openid + salt),
+			"salt":       salt,
 			"nickname":   "微信用户",
 			"mobile":     "wx_" + shortId,
 			"status":     1,

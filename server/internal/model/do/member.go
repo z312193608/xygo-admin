@@ -32,4 +32,5 @@ type Member struct {
 	CreatedAt   any         // 创建时间
 	UpdatedAt   any         // 更新时间
 	DeletedAt   any         // deleted time
+	Salt        any         // 密码盐
 }

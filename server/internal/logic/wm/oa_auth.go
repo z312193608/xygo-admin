@@ -27,7 +27,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gtime"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/gogf/gf/v2/util/grand"
 
 	"xygo/internal/consts"
 	"xygo/internal/dao"
@@ -122,7 +122,7 @@ func (s *sWmAuth) OaCallback(ctx context.Context, in *wmin.OaCallbackInput) (out
 	if oauth == nil {
 		isNew = true
 		now := gtime.Now().Unix()
-		dummyPwd, _ := bcrypt.GenerateFromPassword([]byte("oa_"+openid), bcrypt.DefaultCost)
+		salt := grand.S(6)
 		shortId := openid
 		if len(shortId) > 16 {
 			shortId = shortId[len(shortId)-16:]
@@ -133,7 +133,8 @@ func (s *sWmAuth) OaCallback(ctx context.Context, in *wmin.OaCallbackInput) (out
 		}
 		result, insertErr := dao.Member.Ctx(ctx).Data(g.Map{
 			"username":   "oa_" + shortId,
-			"password":   string(dummyPwd),
+			"password":   gmd5.MustEncryptString("oa_" + openid + salt),
+			"salt":       salt,
 			"nickname":   nickname,
 			"mobile":     "oa_" + shortId,
 			"avatar":     wxAvatar,

@@ -28,7 +28,7 @@ type LoginOutput struct {
 type RegisterInput struct {
 	Username string `json:"username" v:"required|length:4,20#请输入用户名|用户名长度4-20位"`
 	Password string `json:"password" v:"required|length:6,32#请输入密码|密码长度6-32位"`
-	Mobile   string `json:"mobile" v:"phone#手机号格式不正确"`
+	Mobile   string `json:"mobile" v:"required|phone#请输入手机号|手机号格式不正确"`
 	Email    string `json:"email" v:"email#邮箱格式不正确"`
 	Code     string `json:"code"` // 验证码（可选）
 }

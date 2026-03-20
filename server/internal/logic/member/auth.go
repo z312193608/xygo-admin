@@ -1,13 +1,3 @@
-// +----------------------------------------------------------------------
-// | XYGo Admin [ Vue3 + GoFrame 企业级中后台管理系统 ]
-// +----------------------------------------------------------------------
-// | Copyright (c) 2026 大连星韵网络科技有限公司 All rights reserved.
-// +----------------------------------------------------------------------
-// | Licensed ( https://opensource.org/licenses/MIT )
-// +----------------------------------------------------------------------
-// | Author: 喜羊羊 <751300685@qq.com>
-// +----------------------------------------------------------------------
-
 // =================================================================================
 // 会员认证逻辑层
 // =================================================================================
@@ -17,11 +7,12 @@ package member
 import (
 	"context"
 
+	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gtime"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/gogf/gf/v2/util/grand"
 
 	"xygo/internal/consts"
 	"xygo/internal/dao"
@@ -93,8 +84,8 @@ func (s *sMemberAuth) Login(ctx context.Context, in *memberin.LoginInput) (out *
 		return nil, gerror.NewCode(consts.CodeBusinessError, "账号已被禁用")
 	}
 
-	// 3. 验证密码
-	if err = bcrypt.CompareHashAndPassword([]byte(member.Password), []byte(in.Password)); err != nil {
+	// 3. 验证密码（MD5 + salt）
+	if gmd5.MustEncryptString(in.Password+member.Salt) != member.Password {
 		recordLog(member.Id, in.Username, 0, "密码错误")
 		return nil, gerror.NewCode(consts.CodeBusinessError, "用户名或密码错误")
 	}
@@ -153,36 +144,34 @@ func (s *sMemberAuth) Register(ctx context.Context, in *memberin.RegisterInput) 
 		return nil, gerror.NewCode(consts.CodeBusinessError, "用户名已存在")
 	}
 
-	// 2. 检查手机号是否已存在（如果提供了手机号）
-	if in.Mobile != "" {
-		count, err = dao.Member.Ctx(ctx).
-			Where("mobile", in.Mobile).
-			Count()
-		if err != nil {
-			return nil, err
-		}
-		if count > 0 {
-			return nil, gerror.NewCode(consts.CodeBusinessError, "手机号已被注册")
-		}
+	// 2. 检查手机号
+	if in.Mobile == "" {
+		return nil, gerror.NewCode(consts.CodeBusinessError, "请输入手机号")
+	}
+	count, err = dao.Member.Ctx(ctx).
+		Where("mobile", in.Mobile).
+		Count()
+	if err != nil {
+		return nil, err
+	}
+	if count > 0 {
+		return nil, gerror.NewCode(consts.CodeBusinessError, "手机号已被注册")
 	}
 
-	// 3. 密码加密
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(in.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return nil, gerror.NewCode(consts.CodeServerError, "注册失败，请稍后重试")
-	}
+	// 3. 密码加密（MD5 + salt）
+	salt := grand.S(6)
 
 	// 4. 插入会员记录
 	result, err := dao.Member.Ctx(ctx).Data(map[string]interface{}{
-		"username":   in.Username,
-		"password":   string(hashedPassword),
-		"mobile":     in.Mobile,
-		"email":      in.Email,
-		"nickname":   in.Username, // 默认昵称为用户名
-		"status":     1,           // 默认启用
-		"group_id":   1,           // 默认分组
-		"level":      1,           // 默认等级
-		// created_at / updated_at 由 GoFrame 自动维护
+		"username": in.Username,
+		"password": gmd5.MustEncryptString(in.Password + salt),
+		"salt":     salt,
+		"mobile":   in.Mobile,
+		"email":    in.Email,
+		"nickname": in.Username,
+		"status":   1,
+		"group_id": 1,
+		"level":    1,
 	}).Insert()
 	if err != nil {
 		return nil, gerror.NewCode(consts.CodeServerError, "注册失败，请稍后重试")

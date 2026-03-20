@@ -1,13 +1,3 @@
-// +----------------------------------------------------------------------
-// | XYGo Admin [ Vue3 + GoFrame 企业级中后台管理系统 ]
-// +----------------------------------------------------------------------
-// | Copyright (c) 2026 大连星韵网络科技有限公司 All rights reserved.
-// +----------------------------------------------------------------------
-// | Licensed ( https://opensource.org/licenses/MIT )
-// +----------------------------------------------------------------------
-// | Author: 喜羊羊 <751300685@qq.com>
-// +----------------------------------------------------------------------
-
 // =================================================================================
 // 会员信息逻辑层
 // =================================================================================
@@ -17,9 +7,9 @@ package member
 import (
 	"context"
 
+	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/errors/gerror"
-
-	"golang.org/x/crypto/bcrypt"
+	"github.com/gogf/gf/v2/util/grand"
 
 	"xygo/internal/consts"
 	"xygo/internal/dao"
@@ -112,22 +102,20 @@ func (s *sMemberUser) ChangePassword(ctx context.Context, memberId uint64, in *m
 		return gerror.NewCode(consts.CodeDataNotFound, "会员不存在")
 	}
 
-	// 2. 验证原密码
-	if err = bcrypt.CompareHashAndPassword([]byte(member.Password), []byte(in.OldPassword)); err != nil {
+	// 2. 验证原密码（MD5 + salt）
+	if gmd5.MustEncryptString(in.OldPassword+member.Salt) != member.Password {
 		return gerror.NewCode(consts.CodeBusinessError, "原密码错误")
 	}
 
-	// 3. 加密新密码
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(in.NewPassword), bcrypt.DefaultCost)
-	if err != nil {
-		return gerror.NewCode(consts.CodeServerError, "修改失败，请稍后重试")
-	}
+	// 3. 生成新盐 + 加密新密码
+	newSalt := grand.S(6)
 
 	// 4. 更新密码
 	_, err = dao.Member.Ctx(ctx).
 		Where("id", memberId).
 		Data(map[string]interface{}{
-			"password": string(hashedPassword),
+			"password": gmd5.MustEncryptString(in.NewPassword + newSalt),
+			"salt":     newSalt,
 		}).
 		Update()
 

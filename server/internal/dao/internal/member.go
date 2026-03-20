@@ -41,6 +41,7 @@ type MemberColumns struct {
 	CreatedAt   string // 创建时间
 	UpdatedAt   string // 更新时间
 	DeletedAt   string // deleted time
+	Salt        string // 密码盐
 }
 
 // memberColumns holds the columns for the table xy_member.
@@ -65,6 +66,7 @@ var memberColumns = MemberColumns{
 	CreatedAt:   "created_at",
 	UpdatedAt:   "updated_at",
 	DeletedAt:   "deleted_at",
+	Salt:        "salt",
 }
 
 // NewMemberDao creates and returns a new DAO object for table data access.

@@ -1,23 +1,13 @@
-// +----------------------------------------------------------------------
-// | XYGo Admin [ Vue3 + GoFrame 企业级中后台管理系统 ]
-// +----------------------------------------------------------------------
-// | Copyright (c) 2026 大连星韵网络科技有限公司 All rights reserved.
-// +----------------------------------------------------------------------
-// | Licensed ( https://opensource.org/licenses/MIT )
-// +----------------------------------------------------------------------
-// | Author: 喜羊羊 <751300685@qq.com>
-// +----------------------------------------------------------------------
-
 package admin
 
 import (
 	"context"
 
+	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
-
-	"golang.org/x/crypto/bcrypt"
+	"github.com/gogf/gf/v2/util/grand"
 
 	"xygo/internal/dao"
 	"xygo/internal/model/input/adminin"
@@ -194,16 +184,14 @@ func (s *sAdminMember) Add(ctx context.Context, in *adminin.MemberAddInp) (out *
 		}
 	}
 
-	// 密码加密
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(in.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return nil, gerror.New("密码加密失败")
-	}
+	// 密码加密（MD5 + salt）
+	salt := grand.S(6)
 
 	// 插入数据
 	result, err := dao.Member.Ctx(ctx).Data(g.Map{
 		"username":   in.Username,
-		"password":   string(hashedPassword),
+		"password":   gmd5.MustEncryptString(in.Password + salt),
+		"salt":       salt,
 		"nickname":   in.Nickname,
 		"mobile":     in.Mobile,
 		"email":      in.Email,
@@ -264,11 +252,9 @@ func (s *sAdminMember) Edit(ctx context.Context, in *adminin.MemberEditInp) (err
 		data["username"] = in.Username
 	}
 	if in.Password != "" {
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(in.Password), bcrypt.DefaultCost)
-		if err != nil {
-			return gerror.New("密码加密失败")
-		}
-		data["password"] = string(hashedPassword)
+		salt := grand.S(6)
+		data["salt"] = salt
+		data["password"] = gmd5.MustEncryptString(in.Password + salt)
 	}
 	if in.Nickname != "" {
 		data["nickname"] = in.Nickname
@@ -311,14 +297,12 @@ func (s *sAdminMember) ResetPassword(ctx context.Context, in *adminin.MemberRese
 		return gerror.New("会员不存在")
 	}
 
-	// 密码加密
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(in.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return gerror.New("密码加密失败")
-	}
+	// 密码加密（MD5 + salt）
+	salt := grand.S(6)
 
 	_, err = dao.Member.Ctx(ctx).Where("id", in.Id).Data(g.Map{
-		"password": string(hashedPassword),
+		"password": gmd5.MustEncryptString(in.Password + salt),
+		"salt":     salt,
 	}).Update()
 	return err
 }

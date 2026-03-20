@@ -64,6 +64,15 @@
             </ElInput>
           </ElFormItem>
 
+          <ElFormItem prop="mobile" class="!mb-0">
+            <label class="block text-sm font-bold text-clay-foreground mb-3 ml-1">手机号</label>
+            <ElInput v-model.trim="formData.mobile" placeholder="请输入手机号" size="large" maxlength="11" class="clay-input">
+              <template #prefix>
+                <ArtSvgIcon icon="ri:phone-line" class="text-lg text-clay-muted" />
+              </template>
+            </ElInput>
+          </ElFormItem>
+
           <!-- 协议 -->
           <div class="px-1 pt-2">
             <ElCheckbox v-model="formData.agree">
@@ -120,6 +129,7 @@ const formData = reactive({
   username: '',
   password: '',
   confirmPassword: '',
+  mobile: '',
   agree: false
 })
 
@@ -144,6 +154,10 @@ const rules: FormRules = {
       },
       trigger: 'blur'
     }
+  ],
+  mobile: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
   ]
 }
 
@@ -163,7 +177,8 @@ const handleSubmit = async () => {
   try {
     await memberRegister({
       username: formData.username,
-      password: formData.password
+      password: formData.password,
+      mobile: formData.mobile
     })
     ElMessage.success('注册成功，请登录')
     router.push('/user/login')

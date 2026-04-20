@@ -206,21 +206,52 @@ func (s *sMemberUser) GetMenusByGroupId(ctx context.Context, groupId uint64) (me
 		return nil, err
 	}
 
+	// nav_show_children=1 的顶栏项：其直接子级跟随父级可见性，补充查询
+	var navDropdownPids []uint64
+	for _, m := range allMenus {
+		if m.Type == "nav" && m.NavShowChildren == 1 {
+			navDropdownPids = append(navDropdownPids, m.Id)
+		}
+	}
+	if len(navDropdownPids) > 0 {
+		existIds := make(map[uint64]struct{}, len(allMenus))
+		for _, m := range allMenus {
+			existIds[m.Id] = struct{}{}
+		}
+		var extraMenus []entity.MemberMenu
+		err = dao.MemberMenu.Ctx(ctx).
+			Where("status", 1).
+			WhereIn("pid", navDropdownPids).
+			OrderAsc("sort, id").
+			Scan(&extraMenus)
+		if err != nil {
+			return nil, err
+		}
+		for _, m := range extraMenus {
+			if _, ok := existIds[m.Id]; !ok {
+				allMenus = append(allMenus, m)
+				existIds[m.Id] = struct{}{}
+			}
+		}
+	}
+
 	// 转换为前端结构
 	menus = make([]memberin.FrontendMenuItem, 0, len(allMenus))
 	for _, m := range allMenus {
 		menus = append(menus, memberin.FrontendMenuItem{
-			Id:           m.Id,
-			Pid:          m.Pid,
-			Title:        m.Title,
-			Name:         m.Name,
-			Path:         m.Path,
-			Component:    m.Component,
-			Icon:         m.Icon,
-			MenuType:     m.MenuType,
-			Url:          m.Url,
-			Type:         m.Type,
-			NoLoginValid: m.NoLoginValid,
+			Id:              m.Id,
+			Pid:             m.Pid,
+			Title:           m.Title,
+			Name:            m.Name,
+			Path:            m.Path,
+			Component:       m.Component,
+			Icon:            m.Icon,
+			MenuType:        m.MenuType,
+			Url:             m.Url,
+			Type:            m.Type,
+			NavShowChildren: m.NavShowChildren,
+			NoLoginValid:    m.NoLoginValid,
+			Sort:            m.Sort,
 		})
 	}
 	return menus, nil

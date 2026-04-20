@@ -33,8 +33,9 @@ type MemberMenuColumns struct {
 	NoLoginValid string // 未登录是否有效：0=否 1=是（公开路由）
 	Extend       string // 扩展属性：none=无, add_rules_only=仅添加为路由, add_menu_only=仅添加为菜单
 	Remark       string // 备注
-	Type         string // 类型：route=普通路由, menu_dir=会员中心菜单目录, menu=会员中心菜单项, nav=顶栏菜单项, nav_user_menu=顶栏会员菜单下拉, button=页面按钮
-	Permission   string // 权限标识
+	Type            string // 类型：route=普通路由, menu_dir=会员中心菜单目录, menu=会员中心菜单项, nav=顶栏菜单项, nav_user_menu=顶栏会员菜单下拉, button=页面按钮
+	NavShowChildren string // 顶栏展示子菜单：0否 1是（仅nav）
+	Permission      string // 权限标识
 	Sort         string // 排序
 	Status       string // 状态：0=禁用 1=正常
 	CreatedAt    string // 创建时间
@@ -55,8 +56,9 @@ var memberMenuColumns = MemberMenuColumns{
 	NoLoginValid: "no_login_valid",
 	Extend:       "extend",
 	Remark:       "remark",
-	Type:         "type",
-	Permission:   "permission",
+	Type:            "type",
+	NavShowChildren: "nav_show_children",
+	Permission:      "permission",
 	Sort:         "sort",
 	Status:       "status",
 	CreatedAt:    "created_at",

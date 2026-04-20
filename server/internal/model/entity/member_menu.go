@@ -18,8 +18,9 @@ type MemberMenu struct {
 	NoLoginValid int    `json:"noLoginValid" orm:"no_login_valid" description:"未登录是否有效：0=否 1=是（公开路由）"`                                                                          // 未登录是否有效：0=否 1=是（公开路由）
 	Extend       string `json:"extend"       orm:"extend"         description:"扩展属性：none=无, add_rules_only=仅添加为路由, add_menu_only=仅添加为菜单"`                                       // 扩展属性：none=无, add_rules_only=仅添加为路由, add_menu_only=仅添加为菜单
 	Remark       string `json:"remark"       orm:"remark"         description:"备注"`                                                                                             // 备注
-	Type         string `json:"type"         orm:"type"           description:"类型：route=普通路由, menu_dir=会员中心菜单目录, menu=会员中心菜单项, nav=顶栏菜单项, nav_user_menu=顶栏会员菜单下拉, button=页面按钮"` // 类型：route=普通路由, menu_dir=会员中心菜单目录, menu=会员中心菜单项, nav=顶栏菜单项, nav_user_menu=顶栏会员菜单下拉, button=页面按钮
-	Permission   string `json:"permission"   orm:"permission"     description:"权限标识"`                                                                                           // 权限标识
+	Type            string `json:"type"             orm:"type"               description:"类型：route=普通路由, menu_dir=会员中心菜单目录, menu=会员中心菜单项, nav=顶栏菜单项, nav_user_menu=顶栏会员菜单下拉, button=页面按钮"` // 类型：route=普通路由, menu_dir=会员中心菜单目录, menu=会员中心菜单项, nav=顶栏菜单项, nav_user_menu=顶栏会员菜单下拉, button=页面按钮
+	NavShowChildren int    `json:"navShowChildren"  orm:"nav_show_children"  description:"顶栏展示子菜单：0否 1是（仅type=nav）"`
+	Permission      string `json:"permission"       orm:"permission"         description:"权限标识"`                                                                                           // 权限标识
 	Sort         int    `json:"sort"         orm:"sort"           description:"排序"`                                                                                             // 排序
 	Status       int    `json:"status"       orm:"status"         description:"状态：0=禁用 1=正常"`                                                                                   // 状态：0=禁用 1=正常
 	CreatedAt    uint64 `json:"createdAt"    orm:"created_at"     description:"创建时间"`                                                                                           // 创建时间

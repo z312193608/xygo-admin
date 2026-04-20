@@ -80,14 +80,16 @@
 
       <!-- 角色 -->
       <ElFormItem label="角色" prop="roleIds">
-        <ElSelect v-model="formData.roleIds" multiple placeholder="请选择角色" class="!w-full">
-          <ElOption
-            v-for="role in roleList"
-            :key="role.id"
-            :label="role.name"
-            :value="role.id"
-          />
-        </ElSelect>
+        <ElTreeSelect
+          v-model="formData.roleIds"
+          :data="roleList"
+          :props="{ label: 'name', value: 'id', children: 'children' }"
+          multiple
+          placeholder="请选择角色"
+          check-strictly
+          :render-after-expand="false"
+          class="!w-full"
+        />
       </ElFormItem>
 
       <!-- 岗位 -->

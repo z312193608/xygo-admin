@@ -106,7 +106,7 @@
       width: 80,
       align: 'center',
       formatter: (row: any) =>
-        row.{{.TsName}} ? h(ElImage, { src: row.{{.TsName}}, style: 'width:40px;height:40px', fit: 'cover', previewSrcList: [row.{{.TsName}}] }) : '-'
+        row.{{.TsName}} ? h(ElImage, { src: row.{{.TsName}}, style: 'width:40px;height:40px', fit: 'cover', previewSrcList: [row.{{.TsName}}], previewTeleported: true }) : '-'
     },
 {{- else if or (eq .Render "images") (and (eq .Render "") (eq .DesignType "images"))}}
     {
@@ -118,7 +118,7 @@
         const imgs = Array.isArray(row.{{.TsName}}) ? row.{{.TsName}} : (row.{{.TsName}} || '').split(',').filter(Boolean)
         if (!imgs.length) return '-'
         return h('div', { style: 'display:flex;align-items:center;gap:2px' }, [
-          h(ElImage, { src: imgs[0], style: 'width:40px;height:40px', fit: 'cover', previewSrcList: imgs }),
+          h(ElImage, { src: imgs[0], style: 'width:40px;height:40px', fit: 'cover', previewSrcList: imgs, previewTeleported: true }),
           imgs.length > 1 ? h('span', { style: 'font-size:12px;color:#999' }, `+${imgs.length - 1}`) : null
         ])
       }

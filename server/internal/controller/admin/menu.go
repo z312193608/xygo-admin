@@ -178,10 +178,21 @@ func (c *ControllerV1) MenuRoutes(ctx context.Context, req *api.MenuRoutesReq) (
 		func(n *adminin.MenuTreeItem, children []*adminin.MenuTreeItem) { n.Children = children },
 	)
 
+	// 过滤孤儿节点：parent_id != 0 但父节点被禁用/不在结果集中的菜单不应作为根节点
+	idSet := make(map[uint]struct{}, len(list))
+	for _, n := range list {
+		idSet[uint(n.Id)] = struct{}{}
+	}
+
 	roots := make([]*adminin.MenuTreeItem, 0, len(rootPtrs))
 	for _, n := range rootPtrs {
 		if n == nil {
 			continue
+		}
+		if n.ParentId != 0 {
+			if _, ok := idSet[uint(n.ParentId)]; !ok {
+				continue
+			}
 		}
 		roots = append(roots, n)
 	}

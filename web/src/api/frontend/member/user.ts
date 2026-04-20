@@ -73,6 +73,8 @@ export interface MemberMenuItem {
   menuType: string // tab | link | iframe
   url: string
   type: string // route | menu_dir | menu | nav | nav_user_menu | button
+  navShowChildren?: number
+  sort?: number
   noLoginValid: number
   children?: MemberMenuItem[]
 }

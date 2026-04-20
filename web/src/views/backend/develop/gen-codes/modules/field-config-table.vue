@@ -94,10 +94,12 @@
               </template>
             </ElTabPane>
           </ElTabs>
-            <ElButton size="small" :loading="syncLoading" @click="handleSyncFromDb" style="margin-left:8px;flex-shrink:0">
-              <ArtSvgIcon icon="ri:refresh-line" class="text-sm mr-1" />
-              同步字段
-            </ElButton>
+            <ElTooltip content="从数据库同步新增字段到设计器（先在数据库中增删字段，再点此按钮同步）" placement="top">
+              <ElButton size="small" :loading="syncLoading" @click="handleSyncFromDb" style="margin-left:8px;margin-right:10px;flex-shrink:0">
+                <ArtSvgIcon icon="ri:refresh-line" class="text-sm mr-1" />
+                同步字段
+              </ElButton>
+            </ElTooltip>
           </div>
 
           <!-- 主表字段设计区 -->
@@ -127,6 +129,8 @@
                 <ElTag v-if="field.isList" size="small" effect="plain" class="badge">列</ElTag>
                 <ElTag v-if="field.isEdit" size="small" effect="plain" class="badge">编</ElTag>
                 <ElTag v-if="field.isQuery" size="small" effect="plain" type="warning" class="badge">搜</ElTag>
+                <ElTag v-if="field.isRequired" size="small" effect="plain" type="danger" class="badge">必</ElTag>
+                <ElTag v-if="field.isQuery && field.queryType && field.queryType !== 'eq'" size="small" effect="plain" type="info" class="badge">{{ field.queryType }}</ElTag>
               </div>
               <ElButton
                 v-if="field.isPk !== 1"
@@ -236,14 +240,19 @@
     try {
       const res = await fetchGenCodesColumnList(props.tableName)
       const dbColumns = res.list || []
+      const dbNameSet = new Set(dbColumns.map((c: any) => c.name || c.columnName))
       const existingNames = new Set(props.modelValue.map((c: any) => c.name))
 
-      const newList = [...props.modelValue]
+      // 移除数据库中已删除的字段（保留主键）
+      const filtered = props.modelValue.filter((c: any) => dbNameSet.has(c.name) || c.isPk === 1)
+      const removedCount = props.modelValue.length - filtered.length
+
+      // 新增数据库中有但设计器没有的字段
       let addedCount = 0
       for (const col of dbColumns) {
         const name = col.name || col.columnName
         if (!existingNames.has(name)) {
-          newList.push({
+          filtered.push({
             name,
             goName: snakeToPascal(name),
             tsName: snakeToCamel(name),
@@ -266,11 +275,14 @@
         }
       }
 
-      if (addedCount > 0) {
-        emit('update:modelValue', newList)
-        ElMessage.success(`已从数据库同步 ${addedCount} 个新字段`)
+      if (addedCount > 0 || removedCount > 0) {
+        emit('update:modelValue', filtered)
+        const parts = []
+        if (addedCount > 0) parts.push(`新增 ${addedCount} 个`)
+        if (removedCount > 0) parts.push(`移除 ${removedCount} 个`)
+        ElMessage.success(`同步完成：${parts.join('，')}字段`)
       } else {
-        ElMessage.info('设计器字段与数据库一致，无新增字段')
+        ElMessage.info('设计器字段与数据库一致，无变更')
       }
     } catch (e) {
       console.error('同步字段失败:', e)

@@ -37,14 +37,19 @@ import { isIframe } from './route'
 import { useSettingStore } from '@/store/modules/setting'
 import { IframeRouteManager } from '@/router/core'
 import { useCommon } from '@/hooks/core/useCommon'
+import { ADMIN_BASE_PATH } from '@/router/routesAlias'
 
 /**
  * 根据当前路由信息设置工作标签页（worktab）
+ * 仅对后台路由（/admin 前缀）生效，前台路由不添加标签页
  * @param to 当前路由对象
  */
 export const setWorktab = (to: RouteLocationNormalized): void => {
   const worktabStore = useWorktabStore()
   const { meta, path, name, params, query } = to
+
+  if (!path.startsWith(ADMIN_BASE_PATH)) return
+
   if (!meta.isHideTab) {
     // 如果是 iframe 页面，则特殊处理工作标签页
     if (isIframe(path)) {

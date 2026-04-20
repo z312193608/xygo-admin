@@ -13,6 +13,7 @@ package member
 import (
 	"context"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -365,17 +366,19 @@ func (c *ControllerV1) GetMenus(ctx context.Context, req *member.GetMenusReq) (r
 	// 按类型分类
 	for _, m := range allMenus {
 		item := member.MemberMenuItem{
-			Id:           m.Id,
-			Pid:          m.Pid,
-			Title:        m.Title,
-			Name:         m.Name,
-			Path:         m.Path,
-			Component:    m.Component,
-			Icon:         m.Icon,
-			MenuType:     m.MenuType,
-			Url:          m.Url,
-			Type:         m.Type,
-			NoLoginValid: m.NoLoginValid,
+			Id:              m.Id,
+			Pid:             m.Pid,
+			Title:           m.Title,
+			Name:            m.Name,
+			Path:            m.Path,
+			Component:       m.Component,
+			Icon:            m.Icon,
+			MenuType:        m.MenuType,
+			Url:             m.Url,
+			Type:            m.Type,
+			NavShowChildren: m.NavShowChildren,
+			NoLoginValid:    m.NoLoginValid,
+			Sort:            m.Sort,
 		}
 		switch m.Type {
 		case "menu_dir", "menu":
@@ -389,5 +392,54 @@ func (c *ControllerV1) GetMenus(ctx context.Context, req *member.GetMenusReq) (r
 		}
 	}
 
+	attachNavDropdownChildren(res.Nav, allMenus)
+
 	return res, nil
+}
+
+func attachNavDropdownChildren(nav []member.MemberMenuItem, flat []memberin.FrontendMenuItem) {
+	byPid := make(map[uint64][]memberin.FrontendMenuItem)
+	for _, m := range flat {
+		if m.Type == "menu" {
+			byPid[m.Pid] = append(byPid[m.Pid], m)
+		}
+	}
+	for i := range nav {
+		if nav[i].Type != "nav" || nav[i].NavShowChildren != 1 {
+			continue
+		}
+		kids := byPid[nav[i].Id]
+		if len(kids) == 0 {
+			continue
+		}
+		sort.Slice(kids, func(a, b int) bool {
+			if kids[a].Sort != kids[b].Sort {
+				return kids[a].Sort < kids[b].Sort
+			}
+			return kids[a].Id < kids[b].Id
+		})
+		ch := make([]member.MemberMenuItem, 0, len(kids))
+		for _, k := range kids {
+			ch = append(ch, frontendMenuItemFromFlat(k))
+		}
+		nav[i].Children = ch
+	}
+}
+
+func frontendMenuItemFromFlat(m memberin.FrontendMenuItem) member.MemberMenuItem {
+	return member.MemberMenuItem{
+		Id:              m.Id,
+		Pid:             m.Pid,
+		Title:           m.Title,
+		Name:            m.Name,
+		Path:            m.Path,
+		Component:       m.Component,
+		Icon:            m.Icon,
+		MenuType:        m.MenuType,
+		Url:             m.Url,
+		Type:            m.Type,
+		NavShowChildren: m.NavShowChildren,
+		NoLoginValid:    m.NoLoginValid,
+		Sort:            m.Sort,
+	}
 }

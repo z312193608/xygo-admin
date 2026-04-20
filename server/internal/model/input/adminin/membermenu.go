@@ -21,8 +21,9 @@ type MemberMenuTreeItem struct {
 	NoLoginValid int                   `json:"noLoginValid" dc:"未登录是否有效：0否1是"`
 	Extend       string                `json:"extend" dc:"扩展属性"`
 	Remark       string                `json:"remark" dc:"备注"`
-	Type         string                `json:"type" dc:"类型：route/menu_dir/menu/nav/nav_user_menu/button"`
-	Permission   string                `json:"permission" dc:"权限标识"`
+	Type            string                `json:"type" dc:"类型：route/menu_dir/menu/nav/nav_user_menu/button"`
+	NavShowChildren int                   `json:"navShowChildren" dc:"顶栏展示子菜单：0否1是（仅nav）"`
+	Permission      string                `json:"permission" dc:"权限标识"`
 	Sort         int                   `json:"sort" dc:"排序"`
 	Status       int                   `json:"status" dc:"状态:0禁用,1启用"`
 	CreatedAt    string                `json:"createdAt" dc:"创建时间"`
@@ -51,8 +52,9 @@ type MemberMenuSaveInp struct {
 	NoLoginValid int    `p:"noLoginValid" d:"0" json:"noLoginValid" dc:"未登录是否有效：0否1是"`
 	Extend       string `p:"extend" d:"none" json:"extend" dc:"扩展属性"`
 	Remark       string `p:"remark" json:"remark" dc:"备注"`
-	Type         string `p:"type" v:"required#类型不能为空" json:"type" dc:"类型：route/menu_dir/menu/nav/nav_user_menu/button"`
-	Permission   string `p:"permission" json:"permission" dc:"权限标识"`
+	Type            string `p:"type" v:"required#类型不能为空" json:"type" dc:"类型：route/menu_dir/menu/nav/nav_user_menu/button"`
+	NavShowChildren int    `p:"navShowChildren" d:"0" json:"navShowChildren" dc:"顶栏展示子菜单：0否1是（仅nav）"`
+	Permission      string `p:"permission" json:"permission" dc:"权限标识"`
 	Sort         int    `p:"sort" d:"0" json:"sort" dc:"排序"`
 	Status       int    `p:"status" d:"1" json:"status" dc:"状态:0禁用,1启用"`
 }

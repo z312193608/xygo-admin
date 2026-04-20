@@ -2779,6 +2779,7 @@ CREATE TABLE public.xy_member_menu (
     extend character varying(20) DEFAULT 'none'::character varying NOT NULL,
     remark character varying(255) DEFAULT ''::character varying NOT NULL,
     type character varying(20) DEFAULT 'menu'::character varying NOT NULL,
+    nav_show_children smallint DEFAULT 0 NOT NULL,
     permission character varying(64) DEFAULT ''::character varying NOT NULL,
     sort integer DEFAULT 0 NOT NULL,
     status smallint DEFAULT 1 NOT NULL,
@@ -2883,6 +2884,13 @@ COMMENT ON COLUMN public.xy_member_menu.remark IS '备注';
 --
 
 COMMENT ON COLUMN public.xy_member_menu.type IS '类型：route=普通路由, menu_dir=会员中心菜单目录, menu=会员中心菜单项, nav=顶栏菜单项, nav_user_menu=顶栏会员菜单下拉, button=页面按钮';
+
+
+--
+-- Name: COLUMN xy_member_menu.nav_show_children; Type: COMMENT; Schema: xygonew; Owner: -
+--
+
+COMMENT ON COLUMN public.xy_member_menu.nav_show_children IS '顶栏展示子菜单：0否 1是（仅nav）';
 
 
 --
@@ -5292,15 +5300,15 @@ INSERT INTO public.xy_member_group (id, name, rules, status, sort, remark, creat
 -- Data for Name: xy_member_menu; Type: TABLE DATA; Schema: xygonew; Owner: -
 --
 
-INSERT INTO public.xy_member_menu (id, pid, title, name, path, component, icon, menu_type, url, no_login_valid, extend, remark, type, permission, sort, status, created_at, updated_at) VALUES (1, 0, '文档', 'docs', '/docs', 'docs/index', 'ri:book-open-line', 'tab', '', 1, 'none', '', 'nav', '', 10, 1, NULL, NULL);
-INSERT INTO public.xy_member_menu (id, pid, title, name, path, component, icon, menu_type, url, no_login_valid, extend, remark, type, permission, sort, status, created_at, updated_at) VALUES (4, 0, '我的账户', 'account', '/user', '', 'ri:user-line', 'tab', '', 0, 'none', '', 'menu_dir', '', 100, 1, NULL, NULL);
-INSERT INTO public.xy_member_menu (id, pid, title, name, path, component, icon, menu_type, url, no_login_valid, extend, remark, type, permission, sort, status, created_at, updated_at) VALUES (5, 4, '账户概览', 'overview', '/user/overview', 'member/center', 'ri:home-4-line', 'tab', '', 0, 'none', '', 'menu', '', 101, 1, NULL, NULL);
-INSERT INTO public.xy_member_menu (id, pid, title, name, path, component, icon, menu_type, url, no_login_valid, extend, remark, type, permission, sort, status, created_at, updated_at) VALUES (6, 4, '每日签到', 'checkin', '/user/checkin', 'member/center', 'ri:calendar-check-line', 'tab', '', 0, 'none', '', 'menu', '', 102, 1, NULL, NULL);
-INSERT INTO public.xy_member_menu (id, pid, title, name, path, component, icon, menu_type, url, no_login_valid, extend, remark, type, permission, sort, status, created_at, updated_at) VALUES (7, 4, '个人资料', 'profile', '/user/profile', 'member/center', 'ri:user-line', 'tab', '', 0, 'none', '', 'menu', '', 103, 1, NULL, NULL);
-INSERT INTO public.xy_member_menu (id, pid, title, name, path, component, icon, menu_type, url, no_login_valid, extend, remark, type, permission, sort, status, created_at, updated_at) VALUES (8, 4, '修改密码', 'password', '/user/password', 'member/center', 'ri:shield-keyhole-line', 'tab', '', 0, 'none', '', 'menu', '', 104, 1, NULL, NULL);
-INSERT INTO public.xy_member_menu (id, pid, title, name, path, component, icon, menu_type, url, no_login_valid, extend, remark, type, permission, sort, status, created_at, updated_at) VALUES (9, 4, '积分记录', 'points', '/user/points', 'member/center', 'ri:copper-coin-line', 'tab', '', 0, 'none', '', 'menu', '', 105, 1, NULL, NULL);
-INSERT INTO public.xy_member_menu (id, pid, title, name, path, component, icon, menu_type, url, no_login_valid, extend, remark, type, permission, sort, status, created_at, updated_at) VALUES (10, 4, '余额记录', 'balance', '/user/balance', 'member/center', 'ri:wallet-3-line', 'tab', '', 0, 'none', '', 'menu', '', 106, 1, NULL, NULL);
-INSERT INTO public.xy_member_menu (id, pid, title, name, path, component, icon, menu_type, url, no_login_valid, extend, remark, type, permission, sort, status, created_at, updated_at) VALUES (11, 4, '系统通知', 'notification', '/user/notification', 'member/center', 'ri:notification-3-line', 'tab', '', 0, 'none', '', 'menu', '', 107, 1, NULL, NULL);
+INSERT INTO public.xy_member_menu (id, pid, title, name, path, component, icon, menu_type, url, no_login_valid, extend, remark, type, nav_show_children, permission, sort, status, created_at, updated_at) VALUES (1, 0, '文档', 'docs', '/docs', 'docs/index', 'ri:book-open-line', 'tab', '', 1, 'none', '', 'nav', 0, '', 10, 1, NULL, NULL);
+INSERT INTO public.xy_member_menu (id, pid, title, name, path, component, icon, menu_type, url, no_login_valid, extend, remark, type, nav_show_children, permission, sort, status, created_at, updated_at) VALUES (4, 0, '我的账户', 'account', '/user', '', 'ri:user-line', 'tab', '', 0, 'none', '', 'menu_dir', 0, '', 100, 1, NULL, NULL);
+INSERT INTO public.xy_member_menu (id, pid, title, name, path, component, icon, menu_type, url, no_login_valid, extend, remark, type, nav_show_children, permission, sort, status, created_at, updated_at) VALUES (5, 4, '账户概览', 'overview', '/user/overview', 'member/center', 'ri:home-4-line', 'tab', '', 0, 'none', '', 'menu', 0, '', 101, 1, NULL, NULL);
+INSERT INTO public.xy_member_menu (id, pid, title, name, path, component, icon, menu_type, url, no_login_valid, extend, remark, type, nav_show_children, permission, sort, status, created_at, updated_at) VALUES (6, 4, '每日签到', 'checkin', '/user/checkin', 'member/center', 'ri:calendar-check-line', 'tab', '', 0, 'none', '', 'menu', 0, '', 102, 1, NULL, NULL);
+INSERT INTO public.xy_member_menu (id, pid, title, name, path, component, icon, menu_type, url, no_login_valid, extend, remark, type, nav_show_children, permission, sort, status, created_at, updated_at) VALUES (7, 4, '个人资料', 'profile', '/user/profile', 'member/center', 'ri:user-line', 'tab', '', 0, 'none', '', 'menu', 0, '', 103, 1, NULL, NULL);
+INSERT INTO public.xy_member_menu (id, pid, title, name, path, component, icon, menu_type, url, no_login_valid, extend, remark, type, nav_show_children, permission, sort, status, created_at, updated_at) VALUES (8, 4, '修改密码', 'password', '/user/password', 'member/center', 'ri:shield-keyhole-line', 'tab', '', 0, 'none', '', 'menu', 0, '', 104, 1, NULL, NULL);
+INSERT INTO public.xy_member_menu (id, pid, title, name, path, component, icon, menu_type, url, no_login_valid, extend, remark, type, nav_show_children, permission, sort, status, created_at, updated_at) VALUES (9, 4, '积分记录', 'points', '/user/points', 'member/center', 'ri:copper-coin-line', 'tab', '', 0, 'none', '', 'menu', 0, '', 105, 1, NULL, NULL);
+INSERT INTO public.xy_member_menu (id, pid, title, name, path, component, icon, menu_type, url, no_login_valid, extend, remark, type, nav_show_children, permission, sort, status, created_at, updated_at) VALUES (10, 4, '余额记录', 'balance', '/user/balance', 'member/center', 'ri:wallet-3-line', 'tab', '', 0, 'none', '', 'menu', 0, '', 106, 1, NULL, NULL);
+INSERT INTO public.xy_member_menu (id, pid, title, name, path, component, icon, menu_type, url, no_login_valid, extend, remark, type, nav_show_children, permission, sort, status, created_at, updated_at) VALUES (11, 4, '系统通知', 'notification', '/user/notification', 'member/center', 'ri:notification-3-line', 'tab', '', 0, 'none', '', 'menu', 0, '', 107, 1, NULL, NULL);
 
 
 --

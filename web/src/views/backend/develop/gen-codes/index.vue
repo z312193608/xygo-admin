@@ -25,6 +25,11 @@
       <div class="step-body">
         <!-- Step 1: 数据源选择 -->
         <div v-show="activeStep === 0" class="step-content">
+          <ElAlert type="warning" :closable="true" show-icon class="mb-4" style="max-width:800px;margin:0 auto 16px">
+            <template #title>
+              生成后需重启后端服务才能生效。若勾选了「生成前运行 gf gen dao」，请确保 <b>hack/config.yaml</b> 与 <b>manifest/config/config.yaml</b> 的数据库连接配置一致。
+            </template>
+          </ElAlert>
           <div class="source-cards">
             <div
               v-for="item in sourceOptions"
@@ -237,10 +242,17 @@
           上一步
         </ElButton>
         <div v-else />
-        <ElButton v-if="activeStep < 3" type="primary" :disabled="!canNext" @click="nextStep">
-          下一步
-          <ArtSvgIcon icon="ri:arrow-right-line" class="text-sm ml-1" />
-        </ElButton>
+        <ElTooltip
+          v-if="activeStep < 3"
+          :disabled="canNext"
+          :content="nextStepTip"
+          placement="top"
+        >
+          <ElButton type="primary" :disabled="!canNext" @click="nextStep">
+            下一步
+            <ArtSvgIcon icon="ri:arrow-right-line" class="text-sm ml-1" />
+          </ElButton>
+        </ElTooltip>
       </div>
     </ElCard>
   </div>
@@ -261,6 +273,7 @@
 
   const activeStep = ref(0)
   const sourceMode = ref<'existing' | 'create' | 'history'>('existing')
+  const tableCreated = ref(false)
   const selectedTable = ref('')
   const selectedTableComment = ref('')
   const tableList = ref<any[]>([])
@@ -351,14 +364,37 @@
     formData.columns.some((c: any) => c.name === 'parent_id' || c.name === 'pid')
   )
 
+  const unconfiguredRemoteFields = computed(() => {
+    return formData.columns.filter((col: any) =>
+      (col.designType === 'remoteSelect' || col.designType === 'remoteSelects') &&
+      !col._formProps?.['remote-table']
+    )
+  })
+
   const canNext = computed(() => {
     if (activeStep.value === 0) {
-      return formData.tableName !== '' || sourceMode.value === 'history'
+      if (sourceMode.value === 'create') return tableCreated.value
+      if (sourceMode.value === 'history') return true
+      return formData.tableName !== ''
     }
     if (activeStep.value === 1) {
-      return formData.tableName && formData.tableComment && formData.varName
+      return !!(formData.tableName && formData.tableComment && formData.varName)
+    }
+    if (activeStep.value === 2) {
+      return unconfiguredRemoteFields.value.length === 0
     }
     return true
+  })
+
+  const nextStepTip = computed(() => {
+    if (activeStep.value === 0 && sourceMode.value === 'create' && !tableCreated.value) {
+      return '请先点击「创建数据表」按钮'
+    }
+    if (activeStep.value === 2 && unconfiguredRemoteFields.value.length > 0) {
+      const names = unconfiguredRemoteFields.value.map((c: any) => c.name).join('、')
+      return `字段 [${names}] 为远程下拉类型，请先配置关联表`
+    }
+    return ''
   })
 
   const buildParams = computed(() => {
@@ -380,6 +416,19 @@
       ...formData,
       columns,
       options: JSON.stringify(options)
+    }
+  })
+
+  watch(sourceMode, (mode) => {
+    tableCreated.value = false
+    if (mode === 'create') {
+      formData.id = 0
+      formData.tableName = ''
+      formData.tableComment = ''
+      formData.varName = ''
+      formData.columns = []
+      selectedTable.value = ''
+      selectedTableComment.value = ''
     }
   })
 
@@ -431,6 +480,7 @@
     await loadTableList()
     selectedTable.value = tableName
     await handleTableSelect(tableName)
+    tableCreated.value = true
     sourceMode.value = 'existing'
     ElMessage.success(`表 ${tableName} 创建成功，已自动选中`)
   }

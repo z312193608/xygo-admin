@@ -93,6 +93,7 @@ export class MenuProcessor {
           keepAlive: !!item.keepAlive,
           affix: !!item.affix,
           frameSrc: item.frameSrc,
+          link: item.isFrame ? '' : item.frameSrc || '',
           isIframe: !!item.isFrame,
           showBadge: !!item.showBadge || !!item.badgeText,
           showTextBadge: item.badgeText || '',

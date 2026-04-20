@@ -75,6 +75,7 @@ func (s *sAdminMemberMenu) Save(ctx context.Context, in *adminin.MemberMenuSaveI
 	switch in.Type {
 	case "menu_dir", "menu", "nav_user_menu":
 		in.NoLoginValid = 0
+		in.NavShowChildren = 0
 	case "route":
 		in.MenuType = "tab"
 	case "button":
@@ -82,6 +83,13 @@ func (s *sAdminMemberMenu) Save(ctx context.Context, in *adminin.MemberMenuSaveI
 		in.Component = ""
 		in.MenuType = "tab"
 		in.Url = ""
+		in.NavShowChildren = 0
+	}
+	if in.Type != "nav" {
+		in.NavShowChildren = 0
+	}
+	if in.NavShowChildren != 0 && in.NavShowChildren != 1 {
+		in.NavShowChildren = 0
 	}
 
 	// 校验路由名称唯一性（非按钮类型）
@@ -110,8 +118,9 @@ func (s *sAdminMemberMenu) Save(ctx context.Context, in *adminin.MemberMenuSaveI
 		NoLoginValid: in.NoLoginValid,
 		Extend:       in.Extend,
 		Remark:       in.Remark,
-		Type:         in.Type,
-		Permission:   in.Permission,
+		Type:            in.Type,
+		NavShowChildren: in.NavShowChildren,
+		Permission:      in.Permission,
 		Sort:         in.Sort,
 		Status:       in.Status,
 	}

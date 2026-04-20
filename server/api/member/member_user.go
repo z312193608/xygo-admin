@@ -92,8 +92,10 @@ type MemberMenuItem struct {
 	Icon         string           `json:"icon"`
 	MenuType     string           `json:"menuType"`
 	Url          string           `json:"url"`
-	Type         string           `json:"type"`
-	NoLoginValid int              `json:"noLoginValid"`
+	Type            string           `json:"type"`
+	NavShowChildren int              `json:"navShowChildren"`
+	NoLoginValid    int              `json:"noLoginValid"`
+	Sort            int              `json:"sort"`
 	Children     []MemberMenuItem `json:"children,omitempty"`
 }
 

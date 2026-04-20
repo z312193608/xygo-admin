@@ -31,31 +31,59 @@
           <span class="font-heading font-extrabold text-2xl text-clay-foreground tracking-tight">{{ siteNameFirst }}<span class="text-clay-accent">{{ siteNameLast }}</span></span>
         </div>
 
-        <!-- Desktop Menu -->
+        <!-- Desktop Menu（仅 type=nav；nav_user_menu 在头像下拉） -->
         <div class="hidden md:flex items-center gap-12 w-fit mx-auto">
-          <template v-for="item in navItems" :key="item.name">
-            <!-- 外链：用 <a> 新标签页打开 -->
+          <template v-for="entry in navEntries" :key="entry.key">
+            <ElDropdown v-if="entry.mode === 'dropdown'" trigger="hover" placement="bottom" popper-class="nav-dropdown-popper">
+              <span
+                class="font-bold text-sm transition-colors relative group inline-flex items-center gap-1.5 cursor-default"
+                :class="isNavEntryActive(entry) ? 'text-clay-accent' : 'text-clay-muted hover:text-clay-accent'"
+              >
+                <ArtSvgIcon v-if="entry.icon" :icon="entry.icon" class="text-base shrink-0" />
+                {{ entry.name }}
+                <ArtSvgIcon icon="ri:arrow-down-s-line" class="text-xs opacity-60 group-hover:opacity-100 transition-opacity" />
+                <span
+                  class="absolute -bottom-1 left-0 h-0.5 bg-clay-accent transition-all duration-300"
+                  :class="isNavEntryActive(entry) ? 'w-full' : 'w-0 group-hover:w-full'"
+                />
+              </span>
+              <template #dropdown>
+                <ElDropdownMenu>
+                  <ElDropdownItem
+                    v-for="c in entry.children"
+                    :key="c.id"
+                    @click="handleNavTargetClick(c)"
+                  >
+                    <span class="inline-flex items-center gap-2">
+                      <ArtSvgIcon v-if="c.icon" :icon="c.icon" class="text-base text-clay-accent/70 shrink-0" />
+                      <span>{{ c.title }}</span>
+                    </span>
+                  </ElDropdownItem>
+                </ElDropdownMenu>
+              </template>
+            </ElDropdown>
             <a
-              v-if="item.isExternal"
-              :href="item.url"
+              v-else-if="entry.isExternal"
+              :href="entry.url"
               target="_blank"
-              rel="noopener"
-              class="font-bold text-sm transition-colors relative group text-clay-muted hover:text-clay-accent"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 font-bold text-sm transition-colors relative group text-clay-muted hover:text-clay-accent"
             >
-              {{ item.name }}
+              <ArtSvgIcon v-if="entry.icon" :icon="entry.icon" class="text-base shrink-0" />
+              {{ entry.name }}
               <span class="absolute -bottom-1 left-0 h-0.5 bg-clay-accent transition-all duration-300 w-0 group-hover:w-full"></span>
             </a>
-            <!-- 内部路由：用 RouterLink -->
             <RouterLink
               v-else
-              :to="item.url"
-              class="font-bold text-sm transition-colors relative group"
-              :class="isActiveNav(item.url) ? 'text-clay-accent' : 'text-clay-muted hover:text-clay-accent'"
+              :to="entry.url"
+              class="inline-flex items-center gap-1.5 font-bold text-sm transition-colors relative group"
+              :class="isActiveNav(entry.url) ? 'text-clay-accent' : 'text-clay-muted hover:text-clay-accent'"
             >
-              {{ item.name }}
+              <ArtSvgIcon v-if="entry.icon" :icon="entry.icon" class="text-base shrink-0" />
+              {{ entry.name }}
               <span
                 class="absolute -bottom-1 left-0 h-0.5 bg-clay-accent transition-all duration-300"
-                :class="isActiveNav(item.url) ? 'w-full' : 'w-0 group-hover:w-full'"
+                :class="isActiveNav(entry.url) ? 'w-full' : 'w-0 group-hover:w-full'"
               ></span>
             </RouterLink>
           </template>
@@ -83,7 +111,17 @@
                 </div>
                 <template #dropdown>
                   <ElDropdownMenu>
-                    <ElDropdownItem command="user">
+                    <ElDropdownItem
+                      v-for="m in userHeaderNavMenus"
+                      :key="m.id"
+                      @click="handleNavTargetClick(navMenuToTarget(m))"
+                    >
+                      <span class="inline-flex items-center">
+                        <ArtSvgIcon v-if="m.icon" :icon="m.icon" class="text-base mr-2 shrink-0" />
+                        {{ m.title }}
+                      </span>
+                    </ElDropdownItem>
+                    <ElDropdownItem :divided="userHeaderNavMenus.length > 0" command="user">
                       <ArtSvgIcon icon="ri:user-line" class="text-base mr-2" />
                       用户中心
                     </ElDropdownItem>
@@ -123,22 +161,60 @@
           <button class="absolute top-8 right-8 text-clay-foreground p-2" @click="mobileMenuOpen = false">
             <ArtSvgIcon icon="ri:close-line" class="text-[28px]" />
           </button>
-          <div class="flex flex-col items-center gap-6 w-full">
-            <template v-for="item in navItems" :key="item.name">
+          <div class="flex flex-col items-center gap-3 w-full max-h-[70vh] overflow-y-auto px-4">
+            <template v-for="entry in navEntries" :key="entry.key">
+              <template v-if="entry.mode === 'dropdown'">
+                <div class="w-full">
+                  <button
+                    type="button"
+                    class="w-full flex items-center justify-center gap-2 py-3 text-xl font-black transition-colors bg-transparent border-none cursor-pointer"
+                    :class="mobileExpandedKey === entry.key ? 'text-clay-accent' : 'text-clay-foreground'"
+                    @click="mobileExpandedKey = mobileExpandedKey === entry.key ? '' : entry.key"
+                  >
+                    <ArtSvgIcon v-if="entry.icon" :icon="entry.icon" class="text-lg shrink-0" />
+                    <span>{{ entry.name }}</span>
+                    <ArtSvgIcon
+                      icon="ri:arrow-down-s-line"
+                      class="text-base transition-transform duration-300"
+                      :class="mobileExpandedKey === entry.key ? 'rotate-180' : ''"
+                    />
+                  </button>
+                  <Transition name="collapse">
+                    <div v-if="mobileExpandedKey === entry.key" class="flex flex-col items-center gap-1 pb-2">
+                      <button
+                        v-for="c in entry.children"
+                        :key="c.id"
+                        type="button"
+                        class="w-[80%] flex items-center justify-center gap-2 py-2.5 rounded-xl text-base font-bold text-clay-muted hover:text-clay-accent hover:bg-blue-50/60 transition-all bg-transparent border-none cursor-pointer"
+                        @click="handleNavTargetClick(c); mobileMenuOpen = false"
+                      >
+                        <ArtSvgIcon v-if="c.icon" :icon="c.icon" class="text-base shrink-0" />
+                        <span>{{ c.title }}</span>
+                      </button>
+                    </div>
+                  </Transition>
+                </div>
+              </template>
               <a
-                v-if="item.isExternal"
-                :href="item.url"
+                v-else-if="entry.isExternal"
+                :href="entry.url"
                 target="_blank"
-                rel="noopener"
-                class="text-2xl font-black text-clay-foreground hover:text-clay-accent transition-colors"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 py-3 text-xl font-black text-clay-foreground hover:text-clay-accent transition-colors"
                 @click="mobileMenuOpen = false"
-              >{{ item.name }}</a>
+              >
+                <ArtSvgIcon v-if="entry.icon" :icon="entry.icon" class="text-lg shrink-0" />
+                <span>{{ entry.name }}</span>
+              </a>
               <RouterLink
                 v-else
-                :to="item.url"
-                class="text-2xl font-black text-clay-foreground hover:text-clay-accent transition-colors"
+                :to="entry.url"
+                class="inline-flex items-center gap-2 py-3 text-xl font-black text-clay-foreground hover:text-clay-accent transition-colors"
                 @click="mobileMenuOpen = false"
-              >{{ item.name }}</RouterLink>
+              >
+                <ArtSvgIcon v-if="entry.icon" :icon="entry.icon" class="text-lg shrink-0" />
+                <span>{{ entry.name }}</span>
+              </RouterLink>
             </template>
           </div>
           <div v-if="memberCenterOpen" class="mt-8 w-full">
@@ -208,6 +284,8 @@
 </template>
 
 <script setup lang="ts">
+import type { MemberMenuItem } from '@/api/frontend/member/user'
+import { memberMenuHref as resolveMemberMenuHref } from '@/utils/member-nav'
 import { useMemberStore } from '@/store/modules/member'
 import { useMemberMenuStore } from '@/store/modules/memberMenu'
 import { useSiteStore } from '@/store/modules/site'
@@ -246,28 +324,92 @@ const memberInfo = computed(() => memberStore.getMemberInfo)
 const isLoggedIn = computed(() => memberStore.isLogin)
 const memberCenterOpen = computed(() => siteStore.isUserCenterEnabled())
 
-// 导航菜单：优先从后端获取（type=nav），降级为硬编码首页
-interface NavItem { name: string; url: string; isExternal: boolean }
-const defaultNavItems: NavItem[] = [{ name: '首页', url: '/', isExternal: false }]
+interface NavTarget {
+  url: string
+  isExternal: boolean
+  menuType: string
+  title: string
+  icon: string
+  id: number
+}
 
-const navItems = computed<NavItem[]>(() => {
-  const dynamicNav = memberMenuStore.getNavMenus
-  // 始终保留首页
-  const items: NavItem[] = [{ name: '首页', url: '/', isExternal: false }]
-  if (dynamicNav.length > 0) {
-    dynamicNav.forEach((m) => {
-      const isLink = m.menuType === 'link'
-      const url = isLink ? m.url : (m.path || `/${m.name}`)
-      const isExternal = isLink || url.startsWith('http')
-      items.push({ name: m.title, url, isExternal })
-    })
+type NavEntry =
+  | { key: string; mode: 'link'; name: string; icon: string; url: string; isExternal: boolean }
+  | { key: string; mode: 'dropdown'; name: string; icon: string; url: string; isExternal: boolean; children: NavTarget[] }
+
+const mainNavMenus = computed(() =>
+  memberMenuStore.getNavMenus.filter((m) => m.type === 'nav'),
+)
+
+const userHeaderNavMenus = computed(() =>
+  memberMenuStore.getNavMenus.filter((m) => m.type === 'nav_user_menu'),
+)
+
+function memberMenuHref(m: MemberMenuItem): { url: string; isExternal: boolean } {
+  return resolveMemberMenuHref(m)
+}
+
+function navMenuToTarget(m: MemberMenuItem): NavTarget {
+  const { url, isExternal } = memberMenuHref(m)
+  return {
+    id: m.id,
+    title: m.title,
+    icon: m.icon || '',
+    url,
+    isExternal,
+    menuType: m.menuType,
   }
-  return items
+}
+
+function handleNavTargetClick(c: NavTarget) {
+  if (c.menuType === 'iframe') {
+    const u = (c.url || '').trim()
+    if (u) window.open(u, '_blank', 'noopener,noreferrer')
+    return
+  }
+  if (c.isExternal) {
+    window.open(c.url, '_blank', 'noopener,noreferrer')
+    return
+  }
+  router.push(c.url)
+}
+
+const navEntries = computed<NavEntry[]>(() => {
+  const list: NavEntry[] = [
+    { key: 'nav-home', mode: 'link', name: '首页', icon: 'ri:home-4-line', url: '/', isExternal: false },
+  ]
+  for (const m of mainNavMenus.value) {
+    const { url, isExternal } = memberMenuHref(m)
+    const key = `nav-main-${m.id}`
+    const icon = m.icon || ''
+    if (m.navShowChildren === 1 && m.children?.length) {
+      const children: NavTarget[] = (m.children || []).map((ch) => navMenuToTarget(ch))
+      list.push({ key, mode: 'dropdown', name: m.title, icon, url, isExternal, children })
+    } else {
+      list.push({ key, mode: 'link', name: m.title, icon, url, isExternal })
+    }
+  }
+  list.push({
+    key: 'nav-qq',
+    mode: 'link',
+    name: '加入QQ群',
+    icon: 'ri:qq-line',
+    url: 'https://qm.qq.com/q/dwSdPBjkhU',
+    isExternal: true,
+  })
+  return list
 })
 
-const isActiveNav = (url: string) => {
+function isActiveNav(url: string) {
+  if (!url || url === '#') return false
   if (url === '/') return route.path === '/'
-  return route.path.startsWith(url)
+  return route.path === url || route.path.startsWith(`${url}/`)
+}
+
+function isNavEntryActive(entry: NavEntry): boolean {
+  if (entry.mode === 'link') return isActiveNav(entry.url)
+  if (isActiveNav(entry.url)) return true
+  return entry.children.some((c) => !c.isExternal && isActiveNav(c.url))
 }
 
 // 页面加载状态
@@ -304,6 +446,7 @@ watch(() => memberStore.isLogin, async (newVal) => {
 // 滚动状态
 const isScrolled = ref(false)
 const mobileMenuOpen = ref(false)
+const mobileExpandedKey = ref('')
 
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 20
@@ -451,5 +594,61 @@ const handleUserCommand = async (command: string) => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* 手机端折叠动画 */
+.collapse-enter-active,
+.collapse-leave-active {
+  transition: all 0.25s ease;
+  overflow: hidden;
+}
+.collapse-enter-from,
+.collapse-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+.collapse-enter-to,
+.collapse-leave-from {
+  max-height: 300px;
+  opacity: 1;
+}
+</style>
+
+<style lang="scss">
+.nav-dropdown-popper {
+  &.el-popper {
+    border: none !important;
+    border-radius: 12px !important;
+    box-shadow:
+      0 8px 30px rgba(0, 0, 0, 0.08),
+      0 2px 8px rgba(0, 0, 0, 0.04),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    padding: 6px !important;
+    overflow: hidden;
+  }
+  .el-dropdown-menu {
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  .el-dropdown-menu__item {
+    padding: 10px 16px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    color: #525f7f !important;
+    transition: all 0.2s ease !important;
+    &:hover,
+    &:focus {
+      background: linear-gradient(135deg, #f0f5ff 0%, #e8efff 100%) !important;
+      color: #409eff !important;
+    }
+  }
+  .el-popper__arrow {
+    display: none !important;
+  }
 }
 </style>

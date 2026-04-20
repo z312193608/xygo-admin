@@ -73,7 +73,7 @@ storage:
 # https://goframe.org/docs/core/gdb-config-file
 database:
   default:
-    link:   "mysql:root:your-password@tcp(127.0.0.1:3306)/xygo?loc=Local&parseTime=true"
+    link:   "mysql:root:guestR56Y@tcp(127.0.0.1:3306)/xygoadmin?loc=Local&parseTime=true"
   # link:   "pgsql:postgres:your-password@tcp(127.0.0.1:5432)/xygo"
     Prefix: "xy_"
     debug:  true

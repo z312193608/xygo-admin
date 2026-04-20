@@ -5,4 +5,7 @@ mobile/
 .update-test/
 pack_addon/
 pack_update/
+server/addons/.tmp/
+server/addons/.backup/
+.DS_Store
 server/addons/

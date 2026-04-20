@@ -18,8 +18,8 @@ gfcli:
   gen:
     dao:
     # 切换数据库：二选一，启用一行、注释另一行（typeMapping 两边通用不用动）
-    # - link: "mysql:xygoopen:123456@tcp(127.0.0.1:3306)/xygoopen?loc=Local&parseTime=true"  # MySQL
-      - link: "pgsql:postgres:123456@tcp(127.0.0.1:5432)/xygoopen"                          # PG（当前）
+      - link: "mysql:root:guestR56Y@tcp(127.0.0.1:3306)/xygoadmin?loc=Local&parseTime=true"  # MySQL
+      # - link: "pgsql:postgres:123456@tcp(127.0.0.1:5432)/xygoopen"                          # PG（当前）
         group: "default"              # 与 database.default 对应
         tables: ""                    # 为空表示当前库所有表
         removePrefix: "xy_"           # 去掉表前缀生成 dao/entity 名称

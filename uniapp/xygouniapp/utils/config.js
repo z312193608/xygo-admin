@@ -1,4 +1,4 @@
-let BASE_URL = 'http://192.168.1.118:4096'
+let BASE_URL = 'http://38.76.219.51:4097'
 
 // #ifdef H5
 BASE_URL = ''

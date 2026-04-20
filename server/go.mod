@@ -17,8 +17,8 @@ require (
 	github.com/qiniu/go-sdk/v7 v7.25.6
 	github.com/shirou/gopsutil/v3 v3.24.5
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.72
-	golang.org/x/crypto v0.47.0
 	golang.org/x/image v0.36.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -67,6 +67,5 @@ require (
 	golang.org/x/sys v0.40.0 // indirect
 	golang.org/x/text v0.34.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/fileutil v1.0.0 // indirect
 )

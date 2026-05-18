@@ -67,6 +67,7 @@ func (s *sNotice) List(ctx context.Context, in *adminin.NoticeListInp) (*adminin
 			Id:         it.Id,
 			Title:      it.Title,
 			Type:       it.Type,
+			Content:    it.Content,
 			Tag:        it.Tag,
 			SenderId:   it.SenderId,
 			ReceiverId: it.ReceiverId,

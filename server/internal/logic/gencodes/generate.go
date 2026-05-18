@@ -45,9 +45,9 @@ type TplData struct {
 	TreeTitleTsColumn string // 标题字段 TS 名称
 
 	// 菜单 SQL
-	MenuPid    int
-	MenuIcon   string
-	MenuSort   int
+	MenuPid      int
+	MenuIcon     string
+	MenuSort     int
 	PermPrefix   string // 权限前缀
 	ApiPrefix    string // API 路径前缀
 	ResourceName string // 资源标识（去前缀表名，用于字段权限关联）
@@ -1429,15 +1429,18 @@ func lookupRouteNameByTable(ctx context.Context, tableName string) string {
 	if tableName == "" {
 		return ""
 	}
-	// 去掉表前缀，如 xy_member_group → member_group
-	name := tableName
-	if idx := strings.Index(name, "_"); idx >= 0 && idx < 4 {
-		name = name[idx+1:]
-	}
+	name := relationTableBase(tableName)
 	// 构建匹配模式：member_group → 可能的路径形式
 	// /admin/member-group/list 或 /admin/member/group/list
 	kebab := strings.ReplaceAll(name, "_", "-")   // member-group
 	slashed := strings.ReplaceAll(name, "_", "/") // member/group
+	candidates := map[string]struct{}{
+		kebab:   {},
+		slashed: {},
+	}
+	if coreRoute := coreRelationApiPath(tableName); coreRoute != "" {
+		candidates[coreRoute] = struct{}{}
+	}
 
 	apiDir := filepath.Join(gfile.Pwd(), "api", "admin")
 	entries, err := os.ReadDir(apiDir)
@@ -1476,8 +1479,8 @@ func lookupRouteNameByTable(ctx context.Context, tableName string) string {
 			}
 			routePrefix := fullPath[:len(fullPath)-5] // 去掉 /list
 
-			// 匹配：精确比较 kebab 或 slashed 形式
-			if routePrefix == kebab || routePrefix == slashed {
+			// 匹配：精确比较 kebab、slashed 或核心表真实路由形式
+			if _, ok := candidates[routePrefix]; ok {
 				return routePrefix
 			}
 		}
@@ -1531,7 +1534,15 @@ func extractLabel(comment, goName string) string {
 	}
 	// "状态:0=禁用,1=启用" -> "状态"
 	if idx := strings.IndexAny(comment, ":："); idx > 0 {
-		return comment[:idx]
+		comment = comment[:idx]
+	}
+	// 截断括号及之后的内容: "周期标签（如...）" -> "周期标签"
+	if idx := strings.IndexAny(comment, "(（"); idx > 0 {
+		comment = comment[:idx]
+	}
+	// 截断逗号/顿号之后: "排序，值越大越靠前" -> "排序"
+	if idx := strings.IndexAny(comment, ",，、"); idx > 0 {
+		comment = comment[:idx]
 	}
 	return comment
 }
@@ -1721,6 +1732,13 @@ func parseEnumSetOptions(columnType, comment string) []RadioOption {
 // tableToRelationName 将 remote-table 转为关联名称基底（snake_case）
 // 例如：xy_demo_category -> demo_category，demo.category -> category
 func tableToRelationName(remoteTable string) string {
+	if coreRoute := coreRelationApiPath(remoteTable); coreRoute != "" {
+		return strings.ReplaceAll(coreRoute, "-", "_")
+	}
+	return relationTableBase(remoteTable)
+}
+
+func relationTableBase(remoteTable string) string {
 	name := strings.TrimSpace(remoteTable)
 	if name == "" {
 		return ""
@@ -1730,6 +1748,26 @@ func tableToRelationName(remoteTable string) string {
 	}
 	name = strings.TrimPrefix(name, "xy_")
 	return strings.TrimSpace(name)
+}
+
+func coreRelationApiPath(remoteTable string) string {
+	switch relationTableBase(remoteTable) {
+	case "admin_user":
+		return "user"
+	case "admin_role":
+		return "role"
+	case "admin_menu":
+		return "menu"
+	case "admin_dept":
+		return "dept"
+	case "admin_post":
+		return "post"
+	case "sys_attachment":
+		return "attachment"
+	case "sys_config":
+		return "config"
+	}
+	return ""
 }
 
 // guessRemoteTable 在未配置 remote-table 时尝试推断关联表名。

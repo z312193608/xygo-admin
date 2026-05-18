@@ -32,7 +32,7 @@
 {{- else if or (eq .Render "tag") (and (eq .Render "") (or (eq .DesignType "radio") (eq .DesignType "select")))}}
       <ElDescriptionsItem label="{{.Label}}">
 {{- if .RadioOptions}}
-        <ElTag :type="({ {{range .RadioOptions}}'{{.Value}}': '{{.TagType}}', {{end}} })[String(detail.{{.TsName}})] || ''" size="small">{{"{{"}} ({ {{range .RadioOptions}}'{{.Value}}': '{{.Label}}', {{end}} })[String(detail.{{.TsName}})] || detail.{{.TsName}} {{"}}"}}</ElTag>
+        <ElTag :type="(({ {{range .RadioOptions}}'{{.Value}}': '{{.TagType}}', {{end}} } as const)[String(detail.{{.TsName}})] ?? undefined)" size="small">{{"{{"}} ({ {{range .RadioOptions}}'{{.Value}}': '{{.Label}}', {{end}} })[String(detail.{{.TsName}})] || detail.{{.TsName}} {{"}}"}}</ElTag>
 {{- else}}
         <ElTag size="small">{{"{{"}} detail.{{.TsName}} ?? '-' {{"}}"}}</ElTag>
 {{- end}}

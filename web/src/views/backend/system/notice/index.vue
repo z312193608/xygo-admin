@@ -45,8 +45,24 @@
             <ElOption value="danger" label="紧急(红)" />
           </ElSelect>
         </ElFormItem>
-        <ElFormItem v-if="formData.type === 3" label="接收人">
-          <ElInputNumber v-model="formData.receiverId" :min="1" placeholder="用户ID" controls-position="right" />
+        <ElFormItem v-if="formData.type === 3" label="接收人" prop="receiverId">
+          <ElSelect
+            v-model="formData.receiverId"
+            filterable
+            remote
+            :remote-method="searchAdminUsers"
+            placeholder="搜索用户名 / 昵称"
+            clearable
+            :loading="userSearchLoading"
+            style="width: 100%"
+          >
+            <ElOption
+              v-for="u in userOptions"
+              :key="u.id"
+              :value="u.id"
+              :label="`${u.nickname || u.username} (ID:${u.id})`"
+            />
+          </ElSelect>
         </ElFormItem>
         <ElFormItem label="内容" prop="content">
           <ElInput v-model="formData.content" type="textarea" :rows="6" placeholder="请输入通知内容" />
@@ -67,6 +83,7 @@
   import { useTable } from '@/hooks/core/useTable'
   import { useAuth } from '@/hooks/core/useAuth'
   import { fetchNoticeList, fetchNoticeEdit, fetchNoticeDelete } from '@/api/backend/system/notice'
+  import { fetchGetUserList } from '@/api/backend/system/user'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { ElTag, ElMessageBox } from 'element-plus'
@@ -144,17 +161,34 @@
   const formRef = ref<FormInstance>()
   const submitLoading = ref(false)
 
-  const defaultForm = () => ({ id: 0, title: '', type: 1, content: '', tag: '', receiverId: 0, status: 1, sort: 0, remark: '' })
+  const defaultForm = () => ({ id: 0, title: '', type: 1, content: '', tag: '', receiverId: null as number | null, status: 1, sort: 0, remark: '' })
   const formData = reactive(defaultForm())
   const rules: FormRules = {
     title: [{ required: true, message: '标题不能为空', trigger: 'blur' }],
     type: [{ required: true, message: '请选择类型', trigger: 'change' }],
   }
 
+  // ==================== 接收人远程搜索 ====================
+  const userOptions = ref<{ id: number; username: string; nickname: string }[]>([])
+  const userSearchLoading = ref(false)
+
+  const searchAdminUsers = async (query: string) => {
+    userSearchLoading.value = true
+    try {
+      const res = await fetchGetUserList({ pageSize: 50, username: query || undefined })
+      userOptions.value = (res.list || []).map((u: any) => ({ id: u.id, username: u.username, nickname: u.nickname }))
+    } catch { /* ignore */ }
+    userSearchLoading.value = false
+  }
+
   const showDialog = (type: 'add' | 'edit', row?: any) => {
     dialogType.value = type
-    if (type === 'edit' && row) Object.assign(formData, row)
-    else Object.assign(formData, defaultForm())
+    if (type === 'edit' && row) {
+      Object.assign(formData, row)
+      if (row.type === 3 && row.receiverId) searchAdminUsers('')
+    } else {
+      Object.assign(formData, defaultForm())
+    }
     dialogVisible.value = true
   }
 
@@ -168,7 +202,7 @@
     await formRef.value.validate()
     submitLoading.value = true
     try {
-      await fetchNoticeEdit({ ...formData })
+      await fetchNoticeEdit({ ...formData, receiverId: formData.receiverId || 0 })
       ElMessage.success(dialogType.value === 'add' ? '发布成功' : '编辑成功')
       dialogVisible.value = false
       refreshData()

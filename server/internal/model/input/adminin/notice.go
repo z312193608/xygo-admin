@@ -26,6 +26,7 @@ type NoticeListItem struct {
 	Id         uint64 `json:"id"`
 	Title      string `json:"title"`
 	Type       int    `json:"type"`
+	Content    string `json:"content"`
 	Tag        string `json:"tag"`
 	SenderId   uint64 `json:"senderId"`
 	SenderName string `json:"senderName"` // 关联查询

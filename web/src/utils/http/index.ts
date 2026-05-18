@@ -407,8 +407,8 @@ async function request<T = any>(config: ExtendedAxiosRequestConfig): Promise<T> 
 function createPrefixedApi(prefix: string = '') {
   const addPrefix = (config: ExtendedAxiosRequestConfig): ExtendedAxiosRequestConfig => {
     const url = config.url || ''
-    // 如果 URL 已经以前缀开头，不重复添加
-    if (prefix && !url.startsWith(prefix)) {
+    // 如果 URL 已经是此前缀，或此前缀下的子路径，不重复添加
+    if (prefix && url !== prefix && !url.startsWith(`${prefix}/`)) {
       config.url = prefix + (url.startsWith('/') ? url : '/' + url)
     }
     return config

@@ -1020,7 +1020,7 @@ CREATE TABLE `xy_member_login_log` (
   `username` varchar(32) NOT NULL DEFAULT '' COMMENT '用户名',
   `ip` varchar(50) NOT NULL DEFAULT '' COMMENT '登录IP',
   `user_agent` varchar(512) NOT NULL DEFAULT '' COMMENT 'User-Agent',
-  `status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '状态:0=成功,1=失败',
+  `status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '状态：0=失败 1=成功',
   `message` varchar(255) NOT NULL DEFAULT '' COMMENT '提示信息',
   `created_at` bigint(20) UNSIGNED DEFAULT NULL COMMENT '创建时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='会员登录日志表';
@@ -1496,7 +1496,7 @@ INSERT INTO `xy_sys_gen_codes_column` (`id`, `gen_id`, `name`, `go_name`, `ts_na
 (493, 37, 'username', 'Username', 'username', 'varchar(32)', 'string', 'string', '用户名', 0, 1, 1, 1, 0, 'like', 'string', '', 'input', '', 3),
 (494, 37, 'ip', 'Ip', 'ip', 'varchar(50)', 'string', 'string', '登录IP', 0, 1, 1, 1, 0, 'eq', 'string', '{\"_formProps\":{\"validator\":[],\"validatorMsg\":\"\"},\"_tableProps\":{\"render\":\"tag\",\"operator\":\"like\",\"sortable\":\"false\"}}', 'input', '', 4),
 (495, 37, 'user_agent', 'UserAgent', 'userAgent', 'varchar(512)', 'string', 'string', 'User-Agent', 0, 1, 1, 1, 0, 'eq', 'string', '', 'input', '', 5),
-(496, 37, 'status', 'Status', 'status', 'tinyint(1)', 'int', 'number', '状态:0=成功,1=失败', 0, 1, 1, 1, 1, 'eq', 'radio', '{\"_formProps\":{\"validator\":[],\"validatorMsg\":\"\",\"dict-options\":\"\"},\"_tableProps\":{\"render\":\"tag\",\"operator\":\"eq\",\"sortable\":\"false\"}}', 'radio', '', 6),
+(496, 37, 'status', 'Status', 'status', 'tinyint(1)', 'int', 'number', '状态：0=失败 1=成功', 0, 1, 1, 1, 1, 'eq', 'radio', '{\"_formProps\":{\"validator\":[],\"validatorMsg\":\"\",\"dict-options\":\"\"},\"_tableProps\":{\"render\":\"tag\",\"operator\":\"eq\",\"sortable\":\"false\"}}', 'radio', '', 6),
 (497, 37, 'message', 'Message', 'message', 'varchar(255)', 'string', 'string', '提示信息', 0, 1, 1, 1, 0, 'eq', 'string', '', 'input', '', 7),
 (498, 37, 'created_at', 'CreatedAt', 'createdAt', 'datetime', '*gtime.Time', 'string', '登录时间', 0, 0, 1, 0, 0, 'between', 'datetime', '', 'datetime', '', 8),
 (590, 50, 'id', 'Id', 'id', 'bigint(20) unsigned', 'uint64', 'number', '', 1, 0, 1, 0, 0, 'eq', 'pk', '', 'input', '', 1),

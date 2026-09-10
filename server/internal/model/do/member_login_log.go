@@ -16,7 +16,7 @@ type MemberLoginLog struct {
 	Username  any // 用户名
 	Ip        any // 登录IP
 	UserAgent any // User-Agent
-	Status    any // 状态:0=成功,1=失败
+	Status    any // 状态：0=失败 1=成功
 	Message   any // 提示信息
 	CreatedAt any // 创建时间
 }

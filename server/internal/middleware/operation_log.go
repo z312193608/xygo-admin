@@ -96,22 +96,7 @@ func OperationLog(r *ghttp.Request) {
 	traceId := gctx.CtxId(r.GetCtx()) // ✨ 提取 TraceId 用于全链路串联
 
 	// 读取请求体（需要在 Next 之前读取，否则可能被消费掉）
-	var requestBody string
-	body := r.GetBodyString()
-	if body != "" {
-		requestBody = body
-	} else {
-		bodyBytes, _ := io.ReadAll(r.Body)
-		if len(bodyBytes) > 0 {
-			requestBody = string(bodyBytes)
-			r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
-		}
-	}
-	if strings.HasPrefix(strings.ToLower(r.Header.Get("Content-Type")), "multipart/form-data") {
-		requestBody = "[multipart/form-data omitted]"
-	} else if len(requestBody) > 4096 {
-		requestBody = requestBody[:4096] + "...(truncated)"
-	}
+	requestBody := captureRequestBody(r)
 
 	// 获取当前用户信息（AdminAuth 中间件已设置 context）
 	var userId uint
@@ -176,6 +161,33 @@ func OperationLog(r *ghttp.Request) {
 
 		service.AdminLog().RecordOperationLog(context.Background(), log)
 	}()
+}
+
+func isFileUploadRequest(r *ghttp.Request) bool {
+	ct := strings.ToLower(r.Header.Get("Content-Type"))
+	if strings.Contains(ct, "multipart/form-data") {
+		return true
+	}
+	path := strings.ToLower(r.URL.Path)
+	return strings.Contains(path, "/upload")
+}
+
+func captureRequestBody(r *ghttp.Request) string {
+	if isFileUploadRequest(r) {
+		return "[file upload omitted]"
+	}
+	body := r.GetBodyString()
+	if body == "" {
+		bodyBytes, _ := io.ReadAll(r.Body)
+		if len(bodyBytes) > 0 {
+			body = string(bodyBytes)
+			r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+		}
+	}
+	if len(body) > 4096 {
+		return body[:4096] + "...(truncated)"
+	}
+	return body
 }
 
 // getRouteInfo 从菜单表缓存中查找模块名称和操作标题

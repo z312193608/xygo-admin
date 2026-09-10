@@ -25,7 +25,7 @@
         </ElDescriptionsItem>
         <ElDescriptionsItem label="User-Agent">{{ detail.userAgent ?? '-' }}</ElDescriptionsItem>
         <ElDescriptionsItem label="状态">
-          <ElTag size="small">{{ ({ '0': '成功', '1': '失败',  })[String(detail.status)] || detail.status }}</ElTag>
+          <ElTag :type="detail.status === 1 ? 'success' : 'danger'" size="small">{{ detail.status === 1 ? '成功' : '失败' }}</ElTag>
         </ElDescriptionsItem>
         <ElDescriptionsItem label="提示信息">{{ detail.message ?? '-' }}</ElDescriptionsItem>
         <ElDescriptionsItem label="登录时间">{{ formatTimestamp(detail.createdAt) }}</ElDescriptionsItem>

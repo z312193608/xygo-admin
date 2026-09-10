@@ -98,7 +98,7 @@
           width: 100,
           align: 'center',
           formatter: (row: any) => {
-            const map: Record<string, [string, string]> = { '0': ['成功', 'success'], '1': ['失败', 'danger'],  }
+            const map: Record<string, [string, string]> = { '1': ['成功', 'success'], '0': ['失败', 'danger'] }
             const m = map[String(row.status)]
             return m ? h(ElTag, { type: m[1] as any, size: 'small' }, () => m[0]) : h(ElTag, { size: 'small' }, () => String(row.status ?? '-'))
           }

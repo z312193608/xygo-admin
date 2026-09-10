@@ -9,7 +9,7 @@ import (
 // MemberLoginLogListInp 登录日志列表入参
 type MemberLoginLogListInp struct {
 	form.PageReq
-	Status *int `json:"status" dc:"状态:0=成功,1=失败"`
+	Status *int `json:"status" dc:"状态：0=失败 1=成功"`
 	// 关联表搜索字段
 	MemberUsername string `json:"member_username" dc:"用户名"`
 }
@@ -21,7 +21,7 @@ type MemberLoginLogListItem struct {
 	Username string `json:"username" dc:"用户名"`
 	Ip string `json:"ip" dc:"登录IP"`
 	UserAgent string `json:"userAgent" dc:"User-Agent"`
-	Status int `json:"status" dc:"状态:0=成功,1=失败"`
+	Status int `json:"status" dc:"状态：0=失败 1=成功"`
 	Message string `json:"message" dc:"提示信息"`
 	CreatedAt uint64 `json:"createdAt" dc:"登录时间"`
 	// 关联表字段（来自 LeftJoin）
@@ -41,7 +41,7 @@ type MemberLoginLogViewModel struct {
 	Username string `json:"username" dc:"用户名"`
 	Ip string `json:"ip" dc:"登录IP"`
 	UserAgent string `json:"userAgent" dc:"User-Agent"`
-	Status int `json:"status" dc:"状态:0=成功,1=失败"`
+	Status int `json:"status" dc:"状态：0=失败 1=成功"`
 	Message string `json:"message" dc:"提示信息"`
 	CreatedAt uint64 `json:"createdAt" dc:"登录时间"`
 }

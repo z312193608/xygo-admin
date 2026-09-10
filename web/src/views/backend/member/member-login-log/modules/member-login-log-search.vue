@@ -25,7 +25,7 @@
       type: 'select',
       props: {
         clearable: true,
-        options: [{ label: '成功', value: 0 }, { label: '失败', value: 1 }, ]
+        options: [{ label: '成功', value: 1 }, { label: '失败', value: 0 }]
       }
     },
     {

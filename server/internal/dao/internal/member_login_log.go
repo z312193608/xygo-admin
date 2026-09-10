@@ -26,7 +26,7 @@ type MemberLoginLogColumns struct {
 	Username  string // 用户名
 	Ip        string // 登录IP
 	UserAgent string // User-Agent
-	Status    string // 状态:0=成功,1=失败
+	Status    string // 状态：0=失败 1=成功
 	Message   string // 提示信息
 	CreatedAt string // 创建时间
 }

@@ -124,7 +124,7 @@
   const searchForm = reactive({
     title: '',
     categoryId: undefined as number | undefined,
-    status: -1,
+    status: undefined as number | undefined,
     page: 1,
     pageSize: 20
   })
@@ -136,7 +136,7 @@
   const loadData = async () => {
     loading.value = true
     try {
-      const res = await fetchDocList(searchForm)
+      const res = await fetchDocList({ ...searchForm, status: searchForm.status ?? -1 })
       tableData.value = res?.list ?? []
       total.value = res?.total ?? 0
     } finally {
@@ -152,7 +152,7 @@
   const handleReset = () => {
     searchForm.title = ''
     searchForm.categoryId = undefined
-    searchForm.status = -1
+    searchForm.status = undefined
     searchForm.page = 1
     loadData()
   }

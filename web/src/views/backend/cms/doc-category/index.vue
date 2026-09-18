@@ -99,12 +99,12 @@
   const dialogRef = ref()
   const isExpanded = ref(true)
 
-  const searchForm = reactive({ title: '', status: -1 })
+  const searchForm = reactive({ title: '', status: undefined as number | undefined })
 
   const loadData = async () => {
     loading.value = true
     try {
-      tableData.value = await fetchDocCategoryList(searchForm)
+      tableData.value = await fetchDocCategoryList({ ...searchForm, status: searchForm.status ?? -1 })
     } finally {
       loading.value = false
     }
@@ -113,7 +113,7 @@
   const handleSearch = () => loadData()
   const handleReset = () => {
     searchForm.title = ''
-    searchForm.status = -1
+    searchForm.status = undefined
     loadData()
   }
 

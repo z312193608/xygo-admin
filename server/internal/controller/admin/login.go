@@ -60,12 +60,10 @@ func (c *ControllerV1) Login(ctx context.Context, req *api.LoginReq) (res *api.L
 		return nil, gerror.Newf("登录失败次数过多，请%d分钟后再试", remainMin)
 	}
 
-	// ✨ 点选验证码校验（验证码与登录强关联）
-	if req.CaptchaId != "" && req.CaptchaInfo != "" {
-		if !captchaLib.VerifyClick(ctx, req.CaptchaId, req.CaptchaInfo) {
-			recordLog(0, req.Username, 0, "验证码错误")
-			return nil, gerror.New("验证码错误或已过期，请重试")
-		}
+	// 点选验证码必验：缺字段或错误都拒绝，禁止空值绕过
+	if !captchaLib.VerifyClick(ctx, req.CaptchaId, req.CaptchaInfo) {
+		recordLog(0, req.Username, 0, "验证码错误")
+		return nil, gerror.New("验证码错误或已过期，请重试")
 	}
 
 	var user *entity.AdminUser

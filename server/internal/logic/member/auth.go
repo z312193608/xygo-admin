@@ -56,12 +56,10 @@ func (s *sMemberAuth) Login(ctx context.Context, in *memberin.LoginInput) (out *
 		}()
 	}
 
-	// 点选验证码校验（验证码与登录强关联，在登录接口内部校验）
-	if in.CaptchaId != "" && in.Captcha != "" {
-		if !captcha.VerifyClick(ctx, in.CaptchaId, in.Captcha) {
-			recordLog(0, in.Username, 0, "验证码错误")
-			return nil, gerror.NewCode(consts.CodeBusinessError, "验证码错误或已过期，请重试")
-		}
+	// 点选验证码必验：缺字段或错误都拒绝，禁止空值绕过
+	if !captcha.VerifyClick(ctx, in.CaptchaId, in.Captcha) {
+		recordLog(0, in.Username, 0, "验证码错误")
+		return nil, gerror.NewCode(consts.CodeBusinessError, "验证码错误或已过期，请重试")
 	}
 
 	// 1. 查询会员

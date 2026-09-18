@@ -27,37 +27,74 @@
             </button>
           </div>
 
-          <!-- Doc category tree -->
+          <!-- Doc category tree：一级无子分类也可点；挂在任意层级的文章都能打开 -->
           <div v-for="group in categories" :key="group.id" class="mb-4 last:mb-0">
-            <h3 class="text-[10px] font-black text-clay-muted uppercase tracking-[0.1em] mb-2 px-2">{{ group.title }}</h3>
-            <ul class="space-y-0.5">
-              <li v-for="child in (group.children || [])" :key="child.id">
-                <a
-                  href="#"
-                  class="flex items-center gap-2 px-3 py-2 rounded-lg font-bold text-xs transition-all duration-300"
-                  :class="getCategoryClass(child)"
-                  @click.prevent="toggleCategory(child)"
-                >
-                  <ArtSvgIcon :icon="child.icon || 'ri:folder-line'" class="text-sm" />
-                  <span class="truncate">{{ child.title }}</span>
-                </a>
-                <ul v-if="expandedCategoryId === child.id && getDocsByCategory(child.id).length > 1" class="ml-4 mt-0.5 space-y-0.5">
-                  <li v-for="doc in getDocsByCategory(child.id)" :key="'doc-' + doc.id">
-                    <a
-                      href="#"
-                      class="flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-xs transition-all duration-300"
-                      :class="activeDocSlug === doc.slug
-                        ? 'bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-clay-btn'
-                        : 'text-clay-foreground hover:bg-white hover:shadow-clay-card'"
-                      @click.prevent="loadDoc(doc.slug)"
-                    >
-                      <ArtSvgIcon icon="ri:article-line" class="text-sm" />
-                      <span class="truncate">{{ doc.title }}</span>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-            </ul>
+            <template v-if="(group.children || []).length">
+              <h3 class="text-[10px] font-black text-clay-muted uppercase tracking-[0.1em] mb-2 px-2">{{ group.title }}</h3>
+              <ul v-if="getDocsByCategory(group.id).length" class="space-y-0.5 mb-1">
+                <li v-for="doc in getDocsByCategory(group.id)" :key="'gdoc-' + doc.id">
+                  <a
+                    href="#"
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-xs transition-all duration-300"
+                    :class="docLinkClass(doc)"
+                    @click.prevent="openDoc(doc)"
+                  >
+                    <ArtSvgIcon icon="ri:article-line" class="text-sm" />
+                    <span class="truncate">{{ doc.title }}</span>
+                  </a>
+                </li>
+              </ul>
+              <ul class="space-y-0.5">
+                <li v-for="child in group.children" :key="child.id">
+                  <a
+                    href="#"
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg font-bold text-xs transition-all duration-300"
+                    :class="getCategoryClass(child)"
+                    @click.prevent="toggleCategory(child)"
+                  >
+                    <ArtSvgIcon :icon="child.icon || 'ri:folder-line'" class="text-sm" />
+                    <span class="truncate">{{ child.title }}</span>
+                  </a>
+                  <ul v-if="expandedCategoryId === child.id && getDocsByCategory(child.id).length > 1" class="ml-4 mt-0.5 space-y-0.5">
+                    <li v-for="doc in getDocsByCategory(child.id)" :key="'doc-' + doc.id">
+                      <a
+                        href="#"
+                        class="flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-xs transition-all duration-300"
+                        :class="docLinkClass(doc)"
+                        @click.prevent="openDoc(doc)"
+                      >
+                        <ArtSvgIcon icon="ri:article-line" class="text-sm" />
+                        <span class="truncate">{{ doc.title }}</span>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </template>
+            <template v-else>
+              <a
+                href="#"
+                class="flex items-center gap-2 px-3 py-2 rounded-lg font-bold text-xs transition-all duration-300"
+                :class="getCategoryClass(group)"
+                @click.prevent="toggleCategory(group)"
+              >
+                <ArtSvgIcon :icon="group.icon || 'ri:folder-line'" class="text-sm" />
+                <span class="truncate">{{ group.title }}</span>
+              </a>
+              <ul v-if="expandedCategoryId === group.id && getDocsByCategory(group.id).length > 1" class="ml-4 mt-0.5 space-y-0.5">
+                <li v-for="doc in getDocsByCategory(group.id)" :key="'doc-' + doc.id">
+                  <a
+                    href="#"
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-xs transition-all duration-300"
+                    :class="docLinkClass(doc)"
+                    @click.prevent="openDoc(doc)"
+                  >
+                    <ArtSvgIcon icon="ri:article-line" class="text-sm" />
+                    <span class="truncate">{{ doc.title }}</span>
+                  </a>
+                </li>
+              </ul>
+            </template>
           </div>
 
           <div v-if="loadingCategories" class="text-center py-8 text-clay-muted text-xs">加载中...</div>
@@ -89,7 +126,7 @@
               </span>
               <span v-if="currentDoc.updatedAt" class="flex items-center gap-1">
                 <ArtSvgIcon icon="ri:time-line" class="text-sm" />
-                {{ formatDate(currentDoc.updatedAt) }}
+                {{ formatTimestamp(currentDoc.updatedAt, 'date') }}
               </span>
               <span v-if="currentDoc.views" class="flex items-center gap-1">
                 <ArtSvgIcon icon="ri:eye-line" class="text-sm" />
@@ -215,6 +252,7 @@ import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { MdPreview, MdCatalog } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
 import { fetchDocCategoryTree, fetchDocListByCategory, fetchDocDetailBySlug, fetchDocSearch } from '@/api/frontend/doc'
+import { formatTimestamp } from '@/utils/time'
 
 defineOptions({ name: 'FrontendDocs' })
 
@@ -317,18 +355,26 @@ onUnmounted(() => {
 })
 
 // --- 分类导航 ---
-function getAllChildIds(tree: any[]): number[] {
+function collectCategoryIds(tree: any[]): number[] {
   const ids: number[] = []
-  for (const group of tree) {
-    for (const child of (group.children || [])) {
-      if (child.id) ids.push(child.id)
+  const walk = (nodes: any[]) => {
+    for (const node of nodes || []) {
+      if (node?.id) ids.push(node.id)
+      if (node.children?.length) walk(node.children)
     }
   }
+  walk(tree)
   return ids
 }
 
 function getDocsByCategory(categoryId: number) {
   return docsByCategory.value[categoryId] || []
+}
+
+function docLinkClass(doc: any) {
+  return activeDocSlug.value === doc.slug
+    ? 'bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-clay-btn'
+    : 'text-clay-foreground hover:bg-white hover:shadow-clay-card'
 }
 
 function getCategoryClass(child: any) {
@@ -343,11 +389,16 @@ function getCategoryClass(child: any) {
   return 'text-clay-foreground hover:bg-white hover:shadow-clay-card'
 }
 
+function openDoc(doc: any) {
+  if (!doc?.slug) return
+  loadDoc(doc.slug)
+}
+
 function toggleCategory(child: any) {
   const docs = docsByCategory.value[child.id] || []
   if (docs.length <= 1) {
     expandedCategoryId.value = child.id
-    if (docs.length === 1 && docs[0].slug) loadDoc(docs[0].slug)
+    if (docs[0]?.slug) openDoc(docs[0])
     return
   }
   if (expandedCategoryId.value === child.id) {
@@ -358,6 +409,7 @@ function toggleCategory(child: any) {
 }
 
 async function loadDoc(slug: string) {
+  if (!slug) return
   if (activeDocSlug.value === slug && currentDoc.value) return
   activeDocSlug.value = slug
   loadingDoc.value = true
@@ -374,30 +426,22 @@ async function loadDoc(slug: string) {
   }
 }
 
-function formatDate(dateStr: string) {
-  if (!dateStr) return ''
-  const d = new Date(dateStr)
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
-
 async function loadCategories() {
   loadingCategories.value = true
   try {
     const tree = await fetchDocCategoryTree()
     categories.value = tree
-    const childIds = getAllChildIds(tree)
-    const results = await Promise.all(childIds.map((id: number) => fetchDocListByCategory(id)))
-    childIds.forEach((id: number, idx: number) => {
+    const categoryIds = collectCategoryIds(tree)
+    const results = await Promise.all(categoryIds.map((id: number) => fetchDocListByCategory(id)))
+    categoryIds.forEach((id: number, idx: number) => {
       docsByCategory.value[id] = results[idx] || []
     })
-    for (const group of tree) {
-      for (const child of (group.children || [])) {
-        const docs = docsByCategory.value[child.id] || []
-        if (docs.length > 0 && docs[0].slug) {
-          expandedCategoryId.value = child.id
-          loadDoc(docs[0].slug)
-          return
-        }
+    for (const id of categoryIds) {
+      const docs = docsByCategory.value[id] || []
+      if (docs[0]?.slug) {
+        expandedCategoryId.value = id
+        openDoc(docs[0])
+        return
       }
     }
   } catch (e) {

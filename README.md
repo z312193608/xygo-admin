@@ -59,6 +59,38 @@ XYGo Admin is a full-stack open-source admin framework. The frontend is based on
 
 **Single Binary Deploy**: Bundle frontend into Go binary — deploy with just one file + one config, no Nginx needed
 
+### Open vs Pro
+
+Shared admin features (RBAC, code generator, member portal, docs, monitoring, Redis queue) exist in both editions. The table below lists **functional differences only**, verified against the two codebases.
+
+| Feature | Open | Pro |
+|---------|------|-----|
+| Dameng DM8 | — | Yes (same codebase as MySQL / PostgreSQL) |
+| Million-row async export | Browser-side small-table export only | Auto-async over 10k rows; batched Excel / ZIP with progress |
+| Attachment document viewer | Image preview only | In-browser PDF / Word / Excel / text / audio / video |
+| Frontend bundle / on-demand loading | Full icon sets on first paint; all locale JSON loaded up front | Build registers only used Iconify icons; icon sets and page locales lazy-load |
+| Multi-tenant SaaS | — | Tenant-isolated data and plan-based menus |
+| Platform + tenant consoles | — | Dual console; platform can impersonate a tenant |
+| RabbitMQ | — | Optional (off by default) |
+| Login captcha | Click-to-select | Basic, click, slide puzzle, drag, and rotate; switchable in security settings |
+| Password strength | — | Low / medium / high; enforced for admin users, member registration, and password changes |
+| Header shortcuts | Hardcoded | Pick from menus; icon and description are editable |
+
+Pro demo: [tenant.xygoadmin.com](https://tenant.xygoadmin.com) · Details: [www.xygoadmin.com/pro](https://www.xygoadmin.com/pro)
+
+### Changelog
+
+Open tracks **1.x**, Pro tracks **2.x** — separate release lines. The same day can ship different notes. This table grows from the three versions already listed: when either side ships, add one entry on that side and leave the other side blank. Older rows stay, so the release cadence stays visible.
+
+| Open | Pro |
+|------|-----|
+| — | **v2.1.0** · 2026-09-22 · Captcha, password strength, cloud sync, shortcuts<br>• Login captcha: basic, click, slide puzzle, drag, and rotate<br>• Password strength enforced for admin users, members, registration, and profile<br>• Local attachments can sync to cloud storage<br>• Header shortcuts are chosen from menus |
+| **v1.5.1** · 2026-09-18 · Captcha required + docs page fixes<br>• Admin/member login captcha is mandatory (empty fields cannot skip)<br>• Doc dates render from second-level timestamps<br>• Root-category docs are clickable<br>• Doc/category status filter defaults to all | **v2.0.10** · 2026-09-18 · Dameng + captcha fix<br>• Dameng DM8 support<br>• Login click-captcha can no longer be skipped<br>• Docs timestamp and root-category click fixes<br>• No database migration in this release |
+| **v1.5.0** · 2026-09-10 · Login-log status + upload log fix<br>• Successful member logins no longer show as failed<br>• Operation logs no longer persist uploaded file bodies | **v2.0.9** · 2026-09-14 · Export-task MySQL types<br>• Export progress/file-count types aligned so MySQL gen-dao builds |
+| **v1.4.9** · 2026-08-16 · Object storage + CDN preview<br>• Qiniu / Aliyun OSS / Tencent COS<br>• Legacy attachment sync and unified CDN preview | **v2.0.8** · 2026-09-12 · Frontend bundle + tree-table relations<br>• On-demand icons and Markdown editor (smaller prod bundle)<br>• Tree-table remote selects generated from this table's FK |
+
+Full history: [website changelog](https://www.xygoadmin.com/changelog).
+
 ### Tech Stack
 
 | Layer | Technology |
@@ -131,7 +163,7 @@ cd ../server && go run main.go         # visit http://localhost:4096
 
 | Role | Username | Password |
 |------|----------|----------|
-| Super Admin | Super | 123456 |
+| Super Admin | admin | 123456 |
 
 ### Project Structure
 

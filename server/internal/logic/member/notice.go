@@ -3,6 +3,7 @@ package member
 import (
 	"context"
 
+	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
 
@@ -118,47 +119,51 @@ func (s *sFrontendNotice) MarkRead(ctx context.Context, memberId uint64, noticeI
 	return err
 }
 
-// MarkAllRead 全部通知标记已读
+// MarkAllRead 全部通知标记已读。只插入未读记录，按批写入。
 func (s *sFrontendNotice) MarkAllRead(ctx context.Context, memberId uint64) error {
-	// 查所有未读通知（已发布 + 未在 read 表中）
-	var noticeIds []uint64
-	err := dao.MemberNotice.Ctx(ctx).
+	vals, err := dao.MemberNotice.Ctx(ctx).
 		Where("status", 1).
 		Where("target = 'all'").
+		WhereNotIn("id", dao.MemberNoticeRead.Ctx(ctx).Fields("notice_id").Where("member_id", memberId)).
 		Fields("id").
-		Scan(&noticeIds)
+		Array()
 	if err != nil {
 		return err
 	}
-	if len(noticeIds) == 0 {
+	ids := memberNoticeIDs(vals)
+	if len(ids) == 0 {
 		return nil
 	}
 
-	// 查已读
-	var readNoticeIds []uint64
-	_ = dao.MemberNoticeRead.Ctx(ctx).
-		Where("member_id", memberId).
-		WhereIn("notice_id", noticeIds).
-		Fields("notice_id").
-		Scan(&readNoticeIds)
-
-	readSet := make(map[uint64]bool)
-	for _, id := range readNoticeIds {
-		readSet[id] = true
-	}
-
-	// 批量插入未读的
 	now := gtime.Now().Unix()
-	for _, nid := range noticeIds {
-		if readSet[nid] {
-			continue
-		}
-		_, _ = dao.MemberNoticeRead.Ctx(ctx).Data(g.Map{
-			"notice_id": nid,
+	rows := make(g.List, 0, len(ids))
+	for _, id := range ids {
+		rows = append(rows, g.Map{
+			"notice_id": id,
 			"member_id": memberId,
 			"read_at":   now,
-		}).Insert()
+		})
 	}
-
+	for i := 0; i < len(rows); i += memberNoticeReadBatch {
+		end := i + memberNoticeReadBatch
+		if end > len(rows) {
+			end = len(rows)
+		}
+		if _, err = dao.MemberNoticeRead.Ctx(ctx).Data(rows[i:end]).Insert(); err != nil {
+			return err
+		}
+	}
 	return nil
+}
+
+const memberNoticeReadBatch = 200
+
+func memberNoticeIDs(vals []gdb.Value) []uint64 {
+	ids := make([]uint64, 0, len(vals))
+	for _, v := range vals {
+		if id := v.Uint64(); id > 0 {
+			ids = append(ids, id)
+		}
+	}
+	return ids
 }

@@ -14,6 +14,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
 
 	"xygo/internal/dao"
@@ -225,22 +226,59 @@ func (s *sNotice) Read(ctx context.Context, noticeId, userId uint64) error {
 	return nil
 }
 
-// ReadAll 标记全部已读
+// ReadAll 标记全部已读。只处理未读记录，按批插入，避免逐条查询。
 func (s *sNotice) ReadAll(ctx context.Context, noticeType int, userId uint64) error {
-	m := dao.AdminNotice.Ctx(ctx).Where("status", 1).Where("receiver_id IN(?)", g.Slice{0, userId})
+	m := dao.AdminNotice.Ctx(ctx).
+		Where("status", 1).
+		Where("receiver_id IN(?)", g.Slice{0, userId}).
+		WhereNotIn("id", dao.AdminNoticeRead.Ctx(ctx).Fields("notice_id").Where("user_id", userId))
 	if noticeType > 0 {
 		m = m.Where("type", noticeType)
 	}
 
-	var notices []entity.AdminNotice
-	if err := m.Fields("id").Scan(&notices); err != nil {
+	vals, err := m.Fields("id").Array()
+	if err != nil {
 		return err
 	}
+	ids := uint64Values(vals)
+	if len(ids) == 0 {
+		return nil
+	}
 
-	for _, n := range notices {
-		_ = s.Read(ctx, n.Id, userId)
+	now := time.Now().Unix()
+	rows := make(g.List, 0, len(ids))
+	for _, id := range ids {
+		rows = append(rows, g.Map{
+			"notice_id": id,
+			"user_id":   userId,
+			"read_at":   now,
+		})
+	}
+	for i := 0; i < len(rows); i += noticeReadBatchSize {
+		end := i + noticeReadBatchSize
+		if end > len(rows) {
+			end = len(rows)
+		}
+		if _, err = dao.AdminNoticeRead.Ctx(ctx).Data(rows[i:end]).Insert(); err != nil {
+			return err
+		}
+		if _, err = dao.AdminNotice.Ctx(ctx).WhereIn("id", ids[i:end]).Increment("read_count", 1); err != nil {
+			return err
+		}
 	}
 	return nil
+}
+
+const noticeReadBatchSize = 200
+
+func uint64Values(vals []gdb.Value) []uint64 {
+	ids := make([]uint64, 0, len(vals))
+	for _, v := range vals {
+		if id := v.Uint64(); id > 0 {
+			ids = append(ids, id)
+		}
+	}
+	return ids
 }
 
 // ==================== 内部辅助 ====================

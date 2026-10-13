@@ -14,6 +14,7 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"strconv"
 	"strings"
 	"time"
 
@@ -114,7 +115,7 @@ func OperationLog(r *ghttp.Request) {
 	r.Middleware.Next()
 
 	// ---- Next() 之后提取响应数据 ----
-	responseBody := r.Response.BufferString()
+	responseBody := captureResponseBody(r)
 	var status int = 1
 	var errorMessage string
 	if r.GetError() != nil {
@@ -170,6 +171,31 @@ func isFileUploadRequest(r *ghttp.Request) bool {
 	}
 	path := strings.ToLower(r.URL.Path)
 	return strings.Contains(path, "/upload")
+}
+
+// captureResponseBody 提取响应体用于日志记录。
+// JSON/文本响应正常记录；文件流（zip/word/pdf/excel 等二进制下载）不落二进制内容，
+// 仅记录占位说明（类型+大小），避免脏数据入库与日志膨胀。
+func captureResponseBody(r *ghttp.Request) string {
+	ct := strings.ToLower(r.Response.Header().Get("Content-Type"))
+	isText := strings.HasPrefix(ct, "application/json") ||
+		strings.HasPrefix(ct, "text/") ||
+		strings.HasPrefix(ct, "application/javascript")
+	if isText {
+		body := r.Response.BufferString()
+		if len(body) > 4096 {
+			return body[:4096] + "...(truncated)"
+		}
+		return body
+	}
+	// 非文本响应（文件流）：有缓冲内容则记占位说明
+	if r.Response.BufferLength() > 0 {
+		if ct == "" {
+			ct = "application/octet-stream"
+		}
+		return "[file download omitted: " + ct + ", " + strconv.Itoa(r.Response.BufferLength()) + " bytes]"
+	}
+	return ""
 }
 
 func captureRequestBody(r *ghttp.Request) string {

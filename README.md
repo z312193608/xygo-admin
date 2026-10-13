@@ -84,6 +84,7 @@ Open tracks **1.x**, Pro tracks **2.x** — separate release lines. The same day
 
 | Open | Pro |
 |------|-----|
+| — | **v2.1.1** · 2026-10-13 · Notices, captcha, and file manager<br>• Mark-all-read is batched; operation logs omit download bodies<br>• Captcha type and password strength selections persist<br>• File cards can copy, download, and delete<br>• Long site names wrap in the sidebar<br>• Notices open their content; monitor alerts jump to the related page |
 | **v1.5.2** · 2026-10-13 · Notice batch read + download log<br>• Mark-all-read writes unread rows in batches<br>• Operation logs omit file download bodies | — |
 | — | **v2.1.0** · 2026-09-22 · Captcha, password strength, cloud sync, shortcuts<br>• Login captcha: basic, click, slide puzzle, drag, and rotate<br>• Password strength enforced for admin users, members, registration, and profile<br>• Local attachments can sync to cloud storage<br>• Header shortcuts are chosen from menus |
 | **v1.5.1** · 2026-09-18 · Captcha required + docs page fixes<br>• Admin/member login captcha is mandatory (empty fields cannot skip)<br>• Doc dates render from second-level timestamps<br>• Root-category docs are clickable<br>• Doc/category status filter defaults to all | **v2.0.10** · 2026-09-18 · Dameng + captcha fix<br>• Dameng DM8 support<br>• Login click-captcha can no longer be skipped<br>• Docs timestamp and root-category click fixes<br>• No database migration in this release |

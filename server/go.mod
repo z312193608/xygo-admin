@@ -1,16 +1,16 @@
 module xygo
 
-go 1.24.0
+go 1.25.0
 
-toolchain go1.24.5
+toolchain go1.25.11
 
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.63.107
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
-	github.com/gogf/gf/contrib/drivers/mysql/v2 v2.10.2
-	github.com/gogf/gf/contrib/drivers/pgsql/v2 v2.10.2
-	github.com/gogf/gf/contrib/nosql/redis/v2 v2.10.2
-	github.com/gogf/gf/v2 v2.10.2
+	github.com/gogf/gf/contrib/drivers/mysql/v2 v2.10.4
+	github.com/gogf/gf/contrib/drivers/pgsql/v2 v2.10.4
+	github.com/gogf/gf/contrib/nosql/redis/v2 v2.10.4
+	github.com/gogf/gf/v2 v2.10.4
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/pprof v0.0.0-20260202012954-cb029daf43ef
 	github.com/google/uuid v1.6.0

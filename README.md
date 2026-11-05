@@ -84,6 +84,7 @@ Open tracks **1.x**, Pro tracks **2.x** — separate release lines. The same day
 
 | Open | Pro |
 |------|-----|
+| — | **v2.1.2** · 2026-11-05 · GoFrame v2.10.4<br>• Upgrade GoFrame to v2.10.4<br>• Build with Go 1.25<br>• Dameng table metadata no longer reads SYS.SYSCOLUMNS<br>• No database migration in this release |
 | — | **v2.1.1** · 2026-10-13 · Notices, captcha, and file manager<br>• Mark-all-read is batched; operation logs omit download bodies<br>• Captcha type and password strength selections persist<br>• File cards can copy, download, and delete<br>• Long site names wrap in the sidebar<br>• Notices open their content; monitor alerts jump to the related page |
 | **v1.5.2** · 2026-10-13 · Notice batch read + download log<br>• Mark-all-read writes unread rows in batches<br>• Operation logs omit file download bodies | — |
 | — | **v2.1.0** · 2026-09-22 · Captcha, password strength, cloud sync, shortcuts<br>• Login captcha: basic, click, slide puzzle, drag, and rotate<br>• Password strength enforced for admin users, members, registration, and profile<br>• Local attachments can sync to cloud storage<br>• Header shortcuts are chosen from menus |
